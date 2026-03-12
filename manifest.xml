@@ -8,17 +8,17 @@
 
   <Id>a1b2c3d4-0000-4f59-883a-f6fff90e5dcc</Id>
   <Version>1.0.0.0</Version>
-  <ProviderName>Your Company Name</ProviderName>
+  <ProviderName>99Acres</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
   <DisplayName DefaultValue="Attachment Categorizer"/>
   <Description DefaultValue="Auto-categorizes attachments when specific recipients are detected in To/CC"/>
   <IconUrl DefaultValue="https://officedev.github.io/Office-Add-in-samples/Samples/outlook-encrypt-attachments/assets/icon-64.png"/>
   <HighResolutionIconUrl DefaultValue="https://officedev.github.io/Office-Add-in-samples/Samples/outlook-encrypt-attachments/assets/icon-128.png"/>
-  <SupportUrl DefaultValue="https://yourcompany.com"/>
+  <SupportUrl DefaultValue="https://99acres.com"/>
 
   <AppDomains>
     <!-- Add your hosted domain here after deployment -->
-    <AppDomain>https://localhost:3000</AppDomain>
+    <AppDomain>https://abhishek-99acres.github.io</AppDomain>
   </AppDomains>
 
   <Hosts>
@@ -36,7 +36,7 @@
   <FormSettings>
     <Form xsi:type="ItemRead">
       <DesktopSettings>
-        <SourceLocation DefaultValue="https://localhost:3000/src/commands/commands.html"/>
+        <SourceLocation DefaultValue="https://abhishek-99acres.github.io/commands.html"/>
         <RequestedHeight>250</RequestedHeight>
       </DesktopSettings>
     </Form>
@@ -128,9 +128,9 @@
           <bt:Image id="Icon.128x128" DefaultValue="https://officedev.github.io/Office-Add-in-samples/Samples/outlook-encrypt-attachments/assets/icon-128.png"/>
         </bt:Images>
         <bt:Urls>
-          <bt:Url id="WebViewRuntime.Url" DefaultValue="https://localhost:3000/src/commands/commands.html"/>
-          <bt:Url id="JSRuntime.Url"      DefaultValue="https://localhost:3000/src/commands/commands.js"/>
-          <bt:Url id="Taskpane.Url"       DefaultValue="https://localhost:3000/src/taskpane/taskpane.html"/>
+          <bt:Url id="WebViewRuntime.Url" DefaultValue="https://abhishek-99acres.github.io/commands.html"/>
+          <bt:Url id="JSRuntime.Url"      DefaultValue="https://abhishek-99acres.github.io/commands.js"/>
+          <bt:Url id="Taskpane.Url"       DefaultValue="https://abhishek-99acres.github.io/taskpane.html"/>
         </bt:Urls>
         <bt:ShortStrings>
           <bt:String id="GroupLabel"           DefaultValue="Attachment Categorizer"/>
