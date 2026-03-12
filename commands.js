@@ -32,11 +32,12 @@
  *   "legal@contoso.com"    → triggers Legal rules
  */
 const TRIGGER_RECIPIENT_MAP = {
-  "finance@contoso.com":    "Finance",
-  "legal@contoso.com":      "Legal",
-  "hr@contoso.com":         "HR",
+  "abhishek.a3@99Acres.com": "Abhishek Anand",
+  "finance@contoso.com": "Finance",
+  "legal@contoso.com": "Legal",
+  "hr@contoso.com": "HR",
   "compliance@contoso.com": "Compliance",
-  "audit@contoso.com":      "Audit",
+  "audit@contoso.com": "Audit",
 };
 
 /**
@@ -46,33 +47,33 @@ const TRIGGER_RECIPIENT_MAP = {
  */
 const ATTACHMENT_CATEGORY_RULES = {
   // Documents
-  pdf:  "PDF Document",
-  doc:  "Word Document",
+  pdf: "PDF Document",
+  doc: "Word Document",
   docx: "Word Document",
   // Spreadsheets
-  xls:  "Spreadsheet",
+  xls: "Spreadsheet",
   xlsx: "Spreadsheet",
-  csv:  "Spreadsheet",
+  csv: "Spreadsheet",
   // Presentations
-  ppt:  "Presentation",
+  ppt: "Presentation",
   pptx: "Presentation",
   // Images
-  jpg:  "Image",
+  jpg: "Image",
   jpeg: "Image",
-  png:  "Image",
-  gif:  "Image",
-  bmp:  "Image",
-  svg:  "Image",
+  png: "Image",
+  gif: "Image",
+  bmp: "Image",
+  svg: "Image",
   // Archives
-  zip:  "Archive",
-  rar:  "Archive",
+  zip: "Archive",
+  rar: "Archive",
   "7z": "Archive",
-  tar:  "Archive",
-  gz:   "Archive",
+  tar: "Archive",
+  gz: "Archive",
   // Code / data
   json: "Data File",
-  xml:  "Data File",
-  txt:  "Text File",
+  xml: "Data File",
+  txt: "Text File",
   // Fallback
   _default: "General Attachment",
 };
@@ -80,17 +81,17 @@ const ATTACHMENT_CATEGORY_RULES = {
 // Outlook category colours available via Office JS
 // See: https://learn.microsoft.com/en-us/javascript/api/outlook/office.mailboxenums.categorycolor
 const RECIPIENT_CATEGORY_COLORS = {
-  Finance:    "Preset0",   // Red
-  Legal:      "Preset1",   // Orange
-  HR:         "Preset2",   // Peach
-  Compliance: "Preset3",   // Yellow
-  Audit:      "Preset4",   // Green
-  _default:   "Preset8",   // Blue
+  Finance: "Preset0", // Red
+  Legal: "Preset1", // Orange
+  HR: "Preset2", // Peach
+  Compliance: "Preset3", // Yellow
+  Audit: "Preset4", // Green
+  _default: "Preset8", // Blue
 };
 
 // Notification keys (must be unique per notification)
 const NOTIF_KEY_CATEGORIZED = "attachmentCategorized";
-const NOTIF_KEY_NO_TRIGGER  = "noTriggerRecipient";
+const NOTIF_KEY_NO_TRIGGER = "noTriggerRecipient";
 
 // ---------------------------------------------------------------------------
 // ❷  ENTRY POINTS  (registered in manifest.xml)
@@ -117,11 +118,15 @@ async function onNewMessageComposeHandler(event) {
 async function onMessageAttachmentsChangedHandler(event) {
   try {
     const details = event.attachmentDetails; // added / removed info
-    const action  = details && details.attachmentStatus === Office.MailboxEnums.AttachmentStatus.Added
-                    ? "added"
-                    : "removed";
+    const action =
+      details &&
+      details.attachmentStatus === Office.MailboxEnums.AttachmentStatus.Added
+        ? "added"
+        : "removed";
 
-    console.log(`[AttachCat] Attachment ${action}: ${details && details.attachmentName}`);
+    console.log(
+      `[AttachCat] Attachment ${action}: ${details && details.attachmentName}`,
+    );
     await evaluateAndCategorize(event, action);
   } catch (err) {
     console.error("[AttachCat] onMessageAttachmentsChanged error:", err);
@@ -171,7 +176,10 @@ async function evaluateAndCategorize(event, trigger) {
   ]);
 
   const allRecipients = [...toRecipients, ...ccRecipients];
-  console.log(`[AttachCat] (${trigger}) Recipients:`, allRecipients.map(r => r.emailAddress));
+  console.log(
+    `[AttachCat] (${trigger}) Recipients:`,
+    allRecipients.map((r) => r.emailAddress),
+  );
 
   // ── Step 2: Find trigger matches ──────────────────────────────────────────
   const matchedLabels = getMatchedLabels(allRecipients);
@@ -180,9 +188,10 @@ async function evaluateAndCategorize(event, trigger) {
     // Remove any stale notification from a previous state
     item.notificationMessages.removeAsync(NOTIF_KEY_CATEGORIZED);
     item.notificationMessages.replaceAsync(NOTIF_KEY_NO_TRIGGER, {
-      type:    Office.MailboxEnums.ItemNotificationMessageType.InformationalMessage,
+      type: Office.MailboxEnums.ItemNotificationMessageType
+        .InformationalMessage,
       message: "No categorisation rules apply to the current recipients.",
-      icon:    "Icon.16x16",
+      icon: "Icon.16x16",
       persistent: false,
     });
     return;
@@ -193,9 +202,10 @@ async function evaluateAndCategorize(event, trigger) {
 
   if (attachments.length === 0) {
     item.notificationMessages.replaceAsync(NOTIF_KEY_CATEGORIZED, {
-      type:    Office.MailboxEnums.ItemNotificationMessageType.InformationalMessage,
+      type: Office.MailboxEnums.ItemNotificationMessageType
+        .InformationalMessage,
       message: `Trigger recipients detected (${matchedLabels.join(", ")}). Attach files to auto-categorize them.`,
-      icon:    "Icon.16x16",
+      icon: "Icon.16x16",
       persistent: true,
     });
     return;
@@ -217,14 +227,19 @@ async function evaluateAndCategorize(event, trigger) {
     .join("\n");
 
   item.notificationMessages.replaceAsync(NOTIF_KEY_CATEGORIZED, {
-    type:    Office.MailboxEnums.ItemNotificationMessageType.InformationalMessage,
+    type: Office.MailboxEnums.ItemNotificationMessageType.InformationalMessage,
     message: `${attachments.length} attachment(s) categorized for ${matchedLabels.join(", ")}. Open taskpane for details.`,
-    icon:    "Icon.16x16",
+    icon: "Icon.16x16",
     persistent: true,
   });
 
   // Store full detail in a custom property so the taskpane can read it
-  await saveCategorizationSummaryAsync(item, attachments, categoryNames, matchedLabels);
+  await saveCategorizationSummaryAsync(
+    item,
+    attachments,
+    categoryNames,
+    matchedLabels,
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -308,12 +323,12 @@ function getAttachmentsAsync(item) {
 function buildCategoryNames(attachments, matchedLabels) {
   const primaryLabel = matchedLabels[0]; // first matched department
   return attachments.map((att) => {
-    const ext      = getExtension(att.name);
-    const docType  = ATTACHMENT_CATEGORY_RULES[ext] || ATTACHMENT_CATEGORY_RULES["_default"];
+    const ext = getExtension(att.name);
+    const docType =
+      ATTACHMENT_CATEGORY_RULES[ext] || ATTACHMENT_CATEGORY_RULES["_default"];
     // Combine ALL matched labels + doc type, e.g. "Finance & Legal | PDF Document"
-    const labelStr = matchedLabels.length > 1
-      ? matchedLabels.join(" & ")
-      : primaryLabel;
+    const labelStr =
+      matchedLabels.length > 1 ? matchedLabels.join(" & ") : primaryLabel;
     return `${labelStr} | ${docType}`;
   });
 }
@@ -340,17 +355,20 @@ async function ensureCategoriesExist(categoryNames, matchedLabels) {
   if (!Office.context.mailbox.masterCategories) return; // API not available
 
   const existing = await getMasterCategoriesAsync();
-  const existingNames = new Set(existing.map(c => c.displayName));
+  const existingNames = new Set(existing.map((c) => c.displayName));
 
   const toCreate = [...new Set(categoryNames)]
-    .filter(name => !existingNames.has(name))
-    .map(name => {
+    .filter((name) => !existingNames.has(name))
+    .map((name) => {
       // Pick a colour based on which department label appears in the name
-      const matchedLabel = matchedLabels.find(l => name.startsWith(l)) || "_default";
+      const matchedLabel =
+        matchedLabels.find((l) => name.startsWith(l)) || "_default";
       return {
         displayName: name,
-        color: Office.MailboxEnums.CategoryColor[RECIPIENT_CATEGORY_COLORS[matchedLabel]]
-               || Office.MailboxEnums.CategoryColor.Preset8,
+        color:
+          Office.MailboxEnums.CategoryColor[
+            RECIPIENT_CATEGORY_COLORS[matchedLabel]
+          ] || Office.MailboxEnums.CategoryColor.Preset8,
       };
     });
 
@@ -359,7 +377,10 @@ async function ensureCategoriesExist(categoryNames, matchedLabels) {
   return new Promise((resolve) => {
     Office.context.mailbox.masterCategories.addAsync(toCreate, (result) => {
       if (result.status !== Office.AsyncResultStatus.Succeeded) {
-        console.warn("[AttachCat] Could not register master categories:", result.error);
+        console.warn(
+          "[AttachCat] Could not register master categories:",
+          result.error,
+        );
       }
       resolve();
     });
@@ -409,21 +430,27 @@ function applyCategoriesAsync(item, categoryNames) {
  * @param {string[]}                   categoryNames
  * @param {string[]}                   matchedLabels
  */
-async function saveCategorizationSummaryAsync(item, attachments, categoryNames, matchedLabels) {
+async function saveCategorizationSummaryAsync(
+  item,
+  attachments,
+  categoryNames,
+  matchedLabels,
+) {
   const summary = {
-    timestamp:     new Date().toISOString(),
+    timestamp: new Date().toISOString(),
     matchedLabels,
     attachments: attachments.map((att, i) => ({
-      id:       att.id,
-      name:     att.name,
-      size:     att.size,
+      id: att.id,
+      name: att.name,
+      size: att.size,
       category: categoryNames[i],
     })),
   };
 
   return new Promise((resolve) => {
     item.loadCustomPropertiesAsync((result) => {
-      if (result.status !== Office.AsyncResultStatus.Succeeded) return resolve();
+      if (result.status !== Office.AsyncResultStatus.Succeeded)
+        return resolve();
       const props = result.value;
       props.set("attachCatSummary", JSON.stringify(summary));
       props.saveAsync(() => resolve());
@@ -437,7 +464,16 @@ async function saveCategorizationSummaryAsync(item, attachments, categoryNames, 
 //  Required so Office can resolve the function names declared in the manifest.
 
 if (typeof Office !== "undefined") {
-  Office.actions.associate("onNewMessageComposeHandler",         onNewMessageComposeHandler);
-  Office.actions.associate("onMessageAttachmentsChangedHandler", onMessageAttachmentsChangedHandler);
-  Office.actions.associate("onMessageRecipientsChangedHandler",  onMessageRecipientsChangedHandler);
+  Office.actions.associate(
+    "onNewMessageComposeHandler",
+    onNewMessageComposeHandler,
+  );
+  Office.actions.associate(
+    "onMessageAttachmentsChangedHandler",
+    onMessageAttachmentsChangedHandler,
+  );
+  Office.actions.associate(
+    "onMessageRecipientsChangedHandler",
+    onMessageRecipientsChangedHandler,
+  );
 }
