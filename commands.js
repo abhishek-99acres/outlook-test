@@ -31,8 +31,17 @@
  *   "finance@contoso.com"  → triggers Finance rules
  *   "legal@contoso.com"    → triggers Legal rules
  */
+// const TRIGGER_RECIPIENT_MAP = {
+//   "abhishek.a3@99Acres.com": "Abhishek Anand",
+//   "finance@contoso.com": "Finance",
+//   "legal@contoso.com": "Legal",
+//   "hr@contoso.com": "HR",
+//   "compliance@contoso.com": "Compliance",
+//   "audit@contoso.com": "Audit",
+// };
+
 const TRIGGER_RECIPIENT_MAP = {
-  "abhishek.a3@99Acres.com": "Abhishek Anand",
+  "abhishek.a3@99acres.com": "Abhishek Anand", // ← lowercase 'a' in 99acres
   "finance@contoso.com": "Finance",
   "legal@contoso.com": "Legal",
   "hr@contoso.com": "HR",
