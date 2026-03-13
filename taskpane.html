@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,7 +8,13 @@
   <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
   <style>
     /* ── Reset & base ── */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
     body {
       font-family: "Segoe UI", system-ui, sans-serif;
@@ -23,11 +30,13 @@
       color: #fff;
       padding: 14px 16px 12px;
     }
+
     header h1 {
       font-size: 15px;
       font-weight: 600;
       letter-spacing: 0.01em;
     }
+
     header p {
       font-size: 11px;
       opacity: 0.85;
@@ -35,7 +44,9 @@
     }
 
     /* ── Container ── */
-    main { padding: 14px 14px 20px; }
+    main {
+      padding: 14px 14px 20px;
+    }
 
     /* ── Status banner ── */
     #statusBanner {
@@ -46,9 +57,24 @@
       line-height: 1.45;
       display: none;
     }
-    #statusBanner.info    { background: #dff0ff; border-left: 3px solid #0078d4; color: #004578; }
-    #statusBanner.warn    { background: #fff4ce; border-left: 3px solid #f7c948; color: #6b4d00; }
-    #statusBanner.success { background: #dff6dd; border-left: 3px solid #107c10; color: #054b05; }
+
+    #statusBanner.info {
+      background: #dff0ff;
+      border-left: 3px solid #0078d4;
+      color: #004578;
+    }
+
+    #statusBanner.warn {
+      background: #fff4ce;
+      border-left: 3px solid #f7c948;
+      color: #6b4d00;
+    }
+
+    #statusBanner.success {
+      background: #dff6dd;
+      border-left: 3px solid #107c10;
+      color: #054b05;
+    }
 
     /* ── Recipients section ── */
     .section-title {
@@ -66,6 +92,7 @@
       gap: 6px;
       margin-bottom: 16px;
     }
+
     .chip {
       display: inline-flex;
       align-items: center;
@@ -76,14 +103,17 @@
       padding: 3px 10px 3px 8px;
       font-size: 11.5px;
     }
+
     .chip.trigger {
       background: #e6f2ff;
       border-color: #0078d4;
       color: #004578;
       font-weight: 600;
     }
+
     .chip-dot {
-      width: 7px; height: 7px;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
       background: #0078d4;
       flex-shrink: 0;
@@ -96,8 +126,9 @@
       background: #fff;
       border-radius: 6px;
       overflow: hidden;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
     }
+
     #attachTable thead th {
       background: #f0f0f0;
       border-bottom: 1px solid #ddd;
@@ -109,9 +140,19 @@
       letter-spacing: 0.05em;
       color: #555;
     }
-    #attachTable tbody tr { border-bottom: 1px solid #eee; }
-    #attachTable tbody tr:last-child { border-bottom: none; }
-    #attachTable tbody tr:hover { background: #fafafa; }
+
+    #attachTable tbody tr {
+      border-bottom: 1px solid #eee;
+    }
+
+    #attachTable tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    #attachTable tbody tr:hover {
+      background: #fafafa;
+    }
+
     #attachTable tbody td {
       padding: 9px 10px;
       vertical-align: middle;
@@ -121,11 +162,13 @@
       font-weight: 500;
       word-break: break-all;
     }
+
     .att-size {
       color: #777;
       font-size: 11px;
       white-space: nowrap;
     }
+
     .cat-badge {
       display: inline-block;
       padding: 2px 9px;
@@ -136,12 +179,35 @@
     }
 
     /* Category colours (match RECIPIENT_CATEGORY_COLORS in commands.js) */
-    .cat-Finance    { background: #fde7e9; color: #a80000; }
-    .cat-Legal      { background: #fff2c9; color: #7d5d00; }
-    .cat-HR         { background: #fce5d4; color: #833200; }
-    .cat-Compliance { background: #fffcc9; color: #666000; }
-    .cat-Audit      { background: #dff2d8; color: #1b6b1b; }
-    .cat-default    { background: #deecf9; color: #004578; }
+    .cat-Finance {
+      background: #fde7e9;
+      color: #a80000;
+    }
+
+    .cat-Legal {
+      background: #fff2c9;
+      color: #7d5d00;
+    }
+
+    .cat-HR {
+      background: #fce5d4;
+      color: #833200;
+    }
+
+    .cat-Compliance {
+      background: #fffcc9;
+      color: #666000;
+    }
+
+    .cat-Audit {
+      background: #dff2d8;
+      color: #1b6b1b;
+    }
+
+    .cat-default {
+      background: #deecf9;
+      color: #004578;
+    }
 
     /* ── Empty state ── */
     #emptyState {
@@ -150,8 +216,16 @@
       color: #888;
       display: none;
     }
-    #emptyState svg { opacity: 0.3; margin-bottom: 10px; }
-    #emptyState p { font-size: 13px; line-height: 1.5; }
+
+    #emptyState svg {
+      opacity: 0.3;
+      margin-bottom: 10px;
+    }
+
+    #emptyState p {
+      font-size: 13px;
+      line-height: 1.5;
+    }
 
     /* ── Refresh button ── */
     #refreshBtn {
@@ -167,204 +241,229 @@
       font-weight: 600;
       cursor: pointer;
     }
-    #refreshBtn:hover { background: #106ebe; }
-    #refreshBtn:active { background: #005a9e; }
 
-    .loading { color: #888; font-size: 12px; padding: 12px 0; }
+    #refreshBtn:hover {
+      background: #106ebe;
+    }
+
+    #refreshBtn:active {
+      background: #005a9e;
+    }
+
+    .loading {
+      color: #888;
+      font-size: 12px;
+      padding: 12px 0;
+    }
   </style>
 </head>
+
 <body>
 
-<header>
-  <h1>📎 Attachment Categorizer</h1>
-  <p>Auto-categories attachments based on To / CC recipients</p>
-</header>
+  <header>
+    <h1>📎 Attachment Categorizer</h1>
+    <p>Auto-categories attachments based on To / CC recipients</p>
+  </header>
 
-<main>
-  <div id="statusBanner"></div>
+  <main>
+    <div id="statusBanner"></div>
 
-  <div class="section-title">Recipients (To &amp; CC)</div>
-  <div id="recipientChips"><span class="loading">Loading…</span></div>
+    <div class="section-title">Recipients (To &amp; CC)</div>
+    <div id="recipientChips"><span class="loading">Loading…</span></div>
 
-  <div class="section-title">Attachments &amp; Categories</div>
+    <div class="section-title">Attachments &amp; Categories</div>
 
-  <table id="attachTable" style="display:none">
-    <thead>
-      <tr>
-        <th>File</th>
-        <th>Size</th>
-        <th>Category</th>
-      </tr>
-    </thead>
-    <tbody id="attachBody"></tbody>
-  </table>
+    <table id="attachTable" style="display:none">
+      <thead>
+        <tr>
+          <th>File</th>
+          <th>Size</th>
+          <th>Category</th>
+        </tr>
+      </thead>
+      <tbody id="attachBody"></tbody>
+    </table>
 
-  <div id="emptyState">
-    <!-- paper-clip SVG icon -->
-    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.5">
-      <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/>
-    </svg>
-    <p>No attachments yet.<br/>Add a file to see categories.</p>
-  </div>
+    <div id="emptyState">
+      <!-- paper-clip SVG icon -->
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.5">
+        <path
+          d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48" />
+      </svg>
+      <p>No attachments yet.<br />Add a file to see categories.</p>
+    </div>
 
-  <button id="refreshBtn">↻ Refresh</button>
-</main>
+    <button id="refreshBtn">↻ Refresh</button>
+  </main>
 
-<script>
-// ---------------------------------------------------------------------------
-//  Taskpane logic — mirrors the config in commands.js
-// ---------------------------------------------------------------------------
+  <script>
+    // ---------------------------------------------------------------------------
+    //  Taskpane logic — mirrors the config in commands.js
+    // ---------------------------------------------------------------------------
 
-const TRIGGER_RECIPIENT_MAP = {
-  "finance@contoso.com":    "Finance",
-  "legal@contoso.com":      "Legal",
-  "hr@contoso.com":         "HR",
-  "compliance@contoso.com": "Compliance",
-  "audit@contoso.com":      "Audit",
-};
+    //     const TRIGGER_RECIPIENT_MAP = {
+    //     "finance@contoso.com": "Finance",
+    //       "legal@contoso.com": "Legal",
+    //         "hr@contoso.com": "HR",
+    //           "compliance@contoso.com": "Compliance",
+    //             "audit@contoso.com": "Audit",
+    // };
 
-const ATTACHMENT_CATEGORY_RULES = {
-  pdf:"PDF Document", doc:"Word Document", docx:"Word Document",
-  xls:"Spreadsheet",  xlsx:"Spreadsheet",  csv:"Spreadsheet",
-  ppt:"Presentation", pptx:"Presentation",
-  jpg:"Image", jpeg:"Image", png:"Image", gif:"Image", bmp:"Image", svg:"Image",
-  zip:"Archive", rar:"Archive", "7z":"Archive", tar:"Archive", gz:"Archive",
-  json:"Data File", xml:"Data File", txt:"Text File",
-  _default:"General Attachment",
-};
 
-// Colours for category badges (must match CSS class names above)
-function getCatClass(label) {
-  if (!label) return "cat-default";
-  for (const key of ["Finance","Legal","HR","Compliance","Audit"]) {
-    if (label.includes(key)) return `cat-${key}`;
-  }
-  return "cat-default";
-}
+    const TRIGGER_RECIPIENT_MAP = {
+      "abhishek.a3@99acres.com": "Abhishek Anand", // 99Acres → 99acres after toLowerCase
+      "sonia.m@99acres.com": "Sonia M",
+      "finance@contoso.com": "Finance",
+      "legal@contoso.com": "Legal",
+      "hr@contoso.com": "HR",
+      "compliance@contoso.com": "Compliance",
+      "audit@contoso.com": "Audit",
+    };
 
-function getExtension(filename) {
-  if (!filename) return "_default";
-  const parts = filename.split(".");
-  return parts.length < 2 ? "_default" : parts[parts.length - 1].toLowerCase();
-}
 
-function formatBytes(bytes) {
-  if (!bytes) return "–";
-  if (bytes < 1024)       return bytes + " B";
-  if (bytes < 1048576)    return (bytes / 1024).toFixed(1) + " KB";
-  return (bytes / 1048576).toFixed(1) + " MB";
-}
+    const ATTACHMENT_CATEGORY_RULES = {
+      pdf: "PDF Document", doc: "Word Document", docx: "Word Document",
+      xls: "Spreadsheet", xlsx: "Spreadsheet", csv: "Spreadsheet",
+      ppt: "Presentation", pptx: "Presentation",
+      jpg: "Image", jpeg: "Image", png: "Image", gif: "Image", bmp: "Image", svg: "Image",
+      zip: "Archive", rar: "Archive", "7z": "Archive", tar: "Archive", gz: "Archive",
+      json: "Data File", xml: "Data File", txt: "Text File",
+      _default: "General Attachment",
+    };
 
-function showBanner(msg, type = "info") {
-  const el = document.getElementById("statusBanner");
-  el.textContent = msg;
-  el.className = type;
-  el.style.display = "block";
-}
-
-function buildCategoryName(attachmentName, matchedLabels) {
-  const ext     = getExtension(attachmentName);
-  const docType = ATTACHMENT_CATEGORY_RULES[ext] || ATTACHMENT_CATEGORY_RULES["_default"];
-  const label   = matchedLabels.length > 1 ? matchedLabels.join(" & ") : matchedLabels[0];
-  return `${label} | ${docType}`;
-}
-
-// ── Main render ──────────────────────────────────────────────────────────────
-async function render() {
-  const item = Office.context.mailbox.item;
-
-  // ── Recipients ────────────────────────────────────────────────────────────
-  const [toR, ccR] = await Promise.all([
-    getRecipientsAsync(item.to),
-    getRecipientsAsync(item.cc),
-  ]);
-  const allRecipients = [...toR, ...ccR];
-
-  const matchedLabels = [];
-  const chipsContainer = document.getElementById("recipientChips");
-  chipsContainer.innerHTML = "";
-
-  if (allRecipients.length === 0) {
-    chipsContainer.innerHTML = "<span style='color:#888;font-size:12px'>No recipients yet.</span>";
-  } else {
-    allRecipients.forEach(r => {
-      const email    = (r.emailAddress || "").toLowerCase();
-      const label    = TRIGGER_RECIPIENT_MAP[email];
-      const isTrigger = !!label;
-      if (isTrigger && !matchedLabels.includes(label)) matchedLabels.push(label);
-
-      const chip = document.createElement("div");
-      chip.className = "chip" + (isTrigger ? " trigger" : "");
-      chip.innerHTML = isTrigger
-        ? `<span class="chip-dot"></span>${r.displayName || email} <span style="font-weight:400;opacity:.8">(${label})</span>`
-        : (r.displayName || email);
-      chipsContainer.appendChild(chip);
-    });
-  }
-
-  // ── Attachments ────────────────────────────────────────────────────────────
-  const attachments = item.attachments || [];
-  const tbody  = document.getElementById("attachBody");
-  const table  = document.getElementById("attachTable");
-  const empty  = document.getElementById("emptyState");
-  tbody.innerHTML = "";
-
-  if (attachments.length === 0) {
-    table.style.display = "none";
-    empty.style.display = "block";
-    if (matchedLabels.length > 0) {
-      showBanner(`Trigger recipients detected: ${matchedLabels.join(", ")}. Attach files to auto-categorize.`, "info");
-    } else {
-      showBanner("No trigger recipients in To/CC. Categories will not be applied.", "warn");
+    // Colours for category badges (must match CSS class names above)
+    function getCatClass (label) {
+      if (!label) return "cat-default";
+      for (const key of ["Finance", "Legal", "HR", "Compliance", "Audit"]) {
+        if (label.includes(key)) return `cat-${key}`;
+      }
+      return "cat-default";
     }
-    return;
-  }
 
-  if (matchedLabels.length === 0) {
-    showBanner("No trigger recipients detected — categories are not being applied.", "warn");
-    table.style.display = "none";
-    empty.style.display = "block";
-    empty.querySelector("p").textContent = "No matching recipients in To/CC.\nAdd a trigger recipient to enable categorisation.";
-    return;
-  }
+    function getExtension (filename) {
+      if (!filename) return "_default";
+      const parts = filename.split(".");
+      return parts.length < 2 ? "_default" : parts[parts.length - 1].toLowerCase();
+    }
 
-  showBanner(`${attachments.length} attachment(s) categorized for: ${matchedLabels.join(", ")}`, "success");
-  table.style.display = "";
-  empty.style.display = "none";
+    function formatBytes (bytes) {
+      if (!bytes) return "-";
+      if (bytes < 1024) return bytes + " B";
+      if (bytes < 1048576) return (bytes / 1024).toFixed(1) + " KB";
+      return (bytes / 1048576).toFixed(1) + " MB";
+    }
 
-  attachments.forEach(att => {
-    const catName = buildCategoryName(att.name, matchedLabels);
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
+    function showBanner (msg, type = "info") {
+      const el = document.getElementById("statusBanner");
+      el.textContent = msg;
+      el.className = type;
+      el.style.display = "block";
+    }
+
+    function buildCategoryName (attachmentName, matchedLabels) {
+      const ext = getExtension(attachmentName);
+      const docType = ATTACHMENT_CATEGORY_RULES[ext] || ATTACHMENT_CATEGORY_RULES["_default"];
+      const label = matchedLabels.length > 1 ? matchedLabels.join(" & ") : matchedLabels[0];
+      return `${label} | ${docType}`;
+    }
+
+    // ── Main render ──────────────────────────────────────────────────────────────
+    async function render () {
+      const item = Office.context.mailbox.item;
+
+      // ── Recipients ────────────────────────────────────────────────────────────
+      const [toR, ccR] = await Promise.all([
+        getRecipientsAsync(item.to),
+        getRecipientsAsync(item.cc),
+      ]);
+      const allRecipients = [...toR, ...ccR];
+
+      const matchedLabels = [];
+      const chipsContainer = document.getElementById("recipientChips");
+      chipsContainer.innerHTML = "";
+
+      if (allRecipients.length === 0) {
+        chipsContainer.innerHTML = "<span style='color:#888;font-size:12px'>No recipients yet.</span>";
+      } else {
+        allRecipients.forEach(r => {
+          const email = (r.emailAddress || "").toLowerCase();
+          const label = TRIGGER_RECIPIENT_MAP[email];
+          const isTrigger = !!label;
+          if (isTrigger && !matchedLabels.includes(label)) matchedLabels.push(label);
+
+          const chip = document.createElement("div");
+          chip.className = "chip" + (isTrigger ? " trigger" : "");
+          chip.innerHTML = isTrigger
+            ? `<span class="chip-dot"></span>${r.displayName || email} <span style="font-weight:400;opacity:.8">(${label})</span>`
+            : (r.displayName || email);
+          chipsContainer.appendChild(chip);
+        });
+      }
+
+      // ── Attachments ────────────────────────────────────────────────────────────
+      const attachments = item.attachments || [];
+      const tbody = document.getElementById("attachBody");
+      const table = document.getElementById("attachTable");
+      const empty = document.getElementById("emptyState");
+      tbody.innerHTML = "";
+
+      if (attachments.length === 0) {
+        table.style.display = "none";
+        empty.style.display = "block";
+        if (matchedLabels.length > 0) {
+          showBanner(`Trigger recipients detected: ${matchedLabels.join(", ")}. Attach files to auto-categorize.`, "info");
+        } else {
+          showBanner("No trigger recipients in To/CC. Categories will not be applied.", "warn");
+        }
+        return;
+      }
+
+      if (matchedLabels.length === 0) {
+        showBanner("No trigger recipients detected — categories are not being applied.", "warn");
+        table.style.display = "none";
+        empty.style.display = "block";
+        empty.querySelector("p").textContent = "No matching recipients in To/CC.\nAdd a trigger recipient to enable categorisation.";
+        return;
+      }
+
+      showBanner(`${attachments.length} attachment(s) categorized for: ${matchedLabels.join(", ")}`, "success");
+      table.style.display = "";
+      empty.style.display = "none";
+
+      attachments.forEach(att => {
+        const catName = buildCategoryName(att.name, matchedLabels);
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
       <td><div class="att-name">${escapeHtml(att.name)}</div></td>
       <td><span class="att-size">${formatBytes(att.size)}</span></td>
       <td><span class="cat-badge ${getCatClass(catName)}">${escapeHtml(catName)}</span></td>
     `;
-    tbody.appendChild(tr);
-  });
-}
+        tbody.appendChild(tr);
+      });
+    }
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
-function getRecipientsAsync(field) {
-  return new Promise(resolve => {
-    if (!field || typeof field.getAsync !== "function") return resolve([]);
-    field.getAsync({}, result => {
-      resolve(result.status === Office.AsyncResultStatus.Succeeded ? (result.value || []) : []);
+    // ── Helpers ──────────────────────────────────────────────────────────────────
+    function getRecipientsAsync (field) {
+      return new Promise(resolve => {
+        if (!field || typeof field.getAsync !== "function") return resolve([]);
+        field.getAsync({}, result => {
+          resolve(result.status === Office.AsyncResultStatus.Succeeded ? (result.value || []) : []);
+        });
+      });
+    }
+
+    function escapeHtml (str) {
+      return String(str)
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+
+    // ── Boot ─────────────────────────────────────────────────────────────────────
+    Office.onReady(() => {
+      render();
+      document.getElementById("refreshBtn").addEventListener("click", render);
     });
-  });
-}
-
-function escapeHtml(str) {
-  return String(str)
-    .replace(/&/g, "&amp;").replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-}
-
-// ── Boot ─────────────────────────────────────────────────────────────────────
-Office.onReady(() => {
-  render();
-  document.getElementById("refreshBtn").addEventListener("click", render);
-});
-</script>
+  </script>
 </body>
+
 </html>
