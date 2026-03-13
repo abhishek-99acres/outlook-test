@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
+<OfficeApp
+  xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0" xsi:type="MailApp">
+  xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0"
+  xsi:type="MailApp">
 
   <Id>a1b2c3d4-0000-4f59-883a-f6fff90e5dcc</Id>
-  <Version>1.0.0.1</Version>
+  <Version>1.0.0.3</Version>
   <ProviderName>99Acres</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
   <DisplayName DefaultValue="Attachment Categorizer"/>
@@ -12,17 +14,12 @@
   <IconUrl DefaultValue="https://officedev.github.io/Office-Add-in-samples/Samples/outlook-encrypt-attachments/assets/icon-64.png"/>
   <HighResolutionIconUrl DefaultValue="https://officedev.github.io/Office-Add-in-samples/Samples/outlook-encrypt-attachments/assets/icon-128.png"/>
   <SupportUrl DefaultValue="https://99acres.com"/>
-
   <AppDomains>
     <AppDomain>https://abhishek-99acres.github.io</AppDomain>
   </AppDomains>
-  <Hosts>
-    <Host Name="Mailbox"/>
-  </Hosts>
+  <Hosts><Host Name="Mailbox"/></Hosts>
   <Requirements>
-    <Sets>
-      <Set Name="Mailbox" MinVersion="1.1"/>
-    </Sets>
+    <Sets><Set Name="Mailbox" MinVersion="1.1"/></Sets>
   </Requirements>
   <FormSettings>
     <Form xsi:type="ItemRead">
@@ -42,7 +39,6 @@
     <VersionOverrides xmlns="http://schemas.microsoft.com/office/mailappversionoverrides/1.1" xsi:type="VersionOverridesV1_1">
 
       <Description resid="residAppDesc"/>
-
       <Requirements>
         <bt:Sets DefaultMinVersion="1.12">
           <bt:Set Name="Mailbox"/>
@@ -51,11 +47,6 @@
 
       <Hosts>
         <Host xsi:type="MailHost">
-
-          <!-- lifetime="long" → runtime stays alive for the ENTIRE compose session.
-            Without this, Outlook may kill and restart the runtime between events,
-            causing OnMessageSend to cold-start → timeout → "taking longer than expected".
-          -->
           <Runtimes>
             <Runtime resid="WebViewRuntime.Url" lifetime="long">
               <Override type="javascript" resid="JSRuntime.Url"/>
@@ -63,7 +54,6 @@
           </Runtimes>
 
           <DesktopFormFactor>
-
             <ExtensionPoint xsi:type="MessageComposeCommandSurface">
               <OfficeTab id="TabDefault">
                 <Group id="msgComposeGroup">
@@ -80,6 +70,7 @@
                       <bt:Image size="80" resid="Icon.80x80"/>
                     </Icon>
                     <Action xsi:type="ShowTaskpane">
+                      <TaskpaneId>categorizer-pane</TaskpaneId>
                       <SourceLocation resid="Taskpane.Url"/>
                       <SupportsPinning>true</SupportsPinning>
                     </Action>
@@ -90,42 +81,37 @@
 
             <ExtensionPoint xsi:type="LaunchEvent">
               <LaunchEvents>
-                <LaunchEvent Type="OnNewMessageCompose" FunctionName="onNewMessageComposeHandler"/>
+                <LaunchEvent Type="OnNewMessageCompose"         FunctionName="onNewMessageComposeHandler"/>
                 <LaunchEvent Type="OnMessageAttachmentsChanged" FunctionName="onMessageAttachmentsChangedHandler"/>
-                <LaunchEvent Type="OnMessageRecipientsChanged" FunctionName="onMessageRecipientsChangedHandler"/>
-                <!-- SendMode="SoftBlock" → user sees our error message + "Send Anyway" escape.
-                  Change to SendMode="Block" to hard-block with no bypass.
-                -->
-                <!-- <LaunchEvent Type="OnMessageSend" FunctionName="onMessageSendHandler" SendMode="SoftBlock"/> -->
-                <LaunchEvent Type="OnMessageSend" FunctionName="onMessageSendHandler" SendMode="Block"/>
+                <LaunchEvent Type="OnMessageRecipientsChanged"  FunctionName="onMessageRecipientsChangedHandler"/>
+                <LaunchEvent Type="OnMessageSend" FunctionName="onMessageSendHandler" SendMode="SoftBlock"/>
               </LaunchEvents>
               <SourceLocation resid="WebViewRuntime.Url"/>
             </ExtensionPoint>
-
           </DesktopFormFactor>
         </Host>
       </Hosts>
 
       <Resources>
         <bt:Images>
-          <bt:Image id="Icon.16x16" DefaultValue="https://officedev.github.io/Office-Add-in-samples/Samples/outlook-encrypt-attachments/assets/icon-16.png"/>
-          <bt:Image id="Icon.32x32" DefaultValue="https://officedev.github.io/Office-Add-in-samples/Samples/outlook-encrypt-attachments/assets/icon-32.png"/>
-          <bt:Image id="Icon.64x64" DefaultValue="https://officedev.github.io/Office-Add-in-samples/Samples/outlook-encrypt-attachments/assets/icon-64.png"/>
-          <bt:Image id="Icon.80x80" DefaultValue="https://officedev.github.io/Office-Add-in-samples/Samples/outlook-encrypt-attachments/assets/icon-80.png"/>
+          <bt:Image id="Icon.16x16"   DefaultValue="https://officedev.github.io/Office-Add-in-samples/Samples/outlook-encrypt-attachments/assets/icon-16.png"/>
+          <bt:Image id="Icon.32x32"   DefaultValue="https://officedev.github.io/Office-Add-in-samples/Samples/outlook-encrypt-attachments/assets/icon-32.png"/>
+          <bt:Image id="Icon.64x64"   DefaultValue="https://officedev.github.io/Office-Add-in-samples/Samples/outlook-encrypt-attachments/assets/icon-64.png"/>
+          <bt:Image id="Icon.80x80"   DefaultValue="https://officedev.github.io/Office-Add-in-samples/Samples/outlook-encrypt-attachments/assets/icon-80.png"/>
           <bt:Image id="Icon.128x128" DefaultValue="https://officedev.github.io/Office-Add-in-samples/Samples/outlook-encrypt-attachments/assets/icon-128.png"/>
         </bt:Images>
         <bt:Urls>
           <bt:Url id="WebViewRuntime.Url" DefaultValue="https://abhishek-99acres.github.io/outlook-test/commands.html"/>
-          <bt:Url id="JSRuntime.Url" DefaultValue="https://abhishek-99acres.github.io/outlook-test/commands.js"/>
-          <bt:Url id="Taskpane.Url" DefaultValue="https://abhishek-99acres.github.io/outlook-test/taskpane.html"/>
+          <bt:Url id="JSRuntime.Url"      DefaultValue="https://abhishek-99acres.github.io/outlook-test/commands.js"/>
+          <bt:Url id="Taskpane.Url"       DefaultValue="https://abhishek-99acres.github.io/outlook-test/taskpane.html"/>
         </bt:Urls>
         <bt:ShortStrings>
-          <bt:String id="GroupLabel" DefaultValue="Attachment Categorizer"/>
+          <bt:String id="GroupLabel"           DefaultValue="Attachment Categorizer"/>
           <bt:String id="TaskPaneButton.Label" DefaultValue="View Categories"/>
         </bt:ShortStrings>
         <bt:LongStrings>
           <bt:String id="TaskPaneButton.Tooltip" DefaultValue="View and manage attachment categories for this email"/>
-          <bt:String id="residAppDesc" DefaultValue="Auto-categorizes attachments based on recipients in To/CC"/>
+          <bt:String id="residAppDesc"           DefaultValue="Auto-categorizes attachments based on recipients in To/CC"/>
         </bt:LongStrings>
       </Resources>
 
