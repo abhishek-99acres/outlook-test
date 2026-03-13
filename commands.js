@@ -157,26 +157,26 @@ async function checkAndNotify() {
           " attachment(s) categorized. Ready to send.";
 
   item.notificationMessages.removeAsync(NOTIF_KEY_NO_RULE);
-  // item.notificationMessages.replaceAsync(NOTIF_KEY_ACTION, {
-  //   type: Office.MailboxEnums.ItemNotificationMessageType.InformationalMessage,
-  //   message: msg,
-  //   icon: "Icon.16x16",
-  //   persistent: true,
-  // });
-
   item.notificationMessages.replaceAsync(NOTIF_KEY_ACTION, {
     type: Office.MailboxEnums.ItemNotificationMessageType.InformationalMessage,
     message: msg,
     icon: "Icon.16x16",
     persistent: true,
-    actions: [
-      {
-        actionText: "Open Attachment Categorizer",
-        actionType: Office.MailboxEnums.ActionType.ShowTaskPane,
-        commandId: "msgComposeOpenPaneButton",
-      },
-    ],
   });
+
+  // item.notificationMessages.replaceAsync(NOTIF_KEY_ACTION, {
+  //   type: Office.MailboxEnums.ItemNotificationMessageType.InformationalMessage,
+  //   message: msg,
+  //   icon: "Icon.16x16",
+  //   persistent: true,
+  //   actions: [
+  //     {
+  //       actionText: "Open Attachment Categorizer",
+  //       actionType: Office.MailboxEnums.ActionType.ShowTaskPane,
+  //       commandId: "msgComposeOpenPaneButton",
+  //     },
+  //   ],
+  // });
 }
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
