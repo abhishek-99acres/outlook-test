@@ -308,61 +308,90 @@ async function onMessageRecipientsChangedHandler(event) {
  * SendMode="SoftBlock" → user sees "Don't Send" | "Send Anyway"
  * SendMode="Block"     → hard block, no bypass
  */
-function onMessageSendHandler(event) {
-  try {
-    const item = Office.context.mailbox.item;
 
-    // ── Use synchronous item.attachments (available at send time) ────────────
-    const attachments = item.attachments || [];
+// function onMessageSendHandler(event) {
+//   try {
+//     const item = Office.context.mailbox.item;
 
-    // No attachments → nothing to categorize, allow send
-    if (attachments.length === 0) {
-      event.completed({ allowEvent: true });
-      return;
-    }
+//     // ── Use synchronous item.attachments (available at send time) ────────────
+//     const attachments = item.attachments || [];
 
-    // ── Check each attachment for a known category prefix ────────────────────
-    const KNOWN_PREFIXES = [
-      "Legal_",
-      "Finance_",
-      "HR_",
-      "Compliance_",
-      "Contract_",
-      "Invoice_",
-      "Report_",
-      "Presentation_",
-      "Reference_",
-      "General_",
-    ];
+//     // No attachments → nothing to categorize, allow send
+//     if (attachments.length === 0) {
+//       event.completed({ allowEvent: true });
+//       return;
+//     }
 
-    const uncategorized = attachments.filter(
-      (att) => !KNOWN_PREFIXES.some((p) => att.name.startsWith(p)),
-    );
+//     // ── Check each attachment for a known category prefix ────────────────────
+//     const KNOWN_PREFIXES = [
+//       "Legal_",
+//       "Finance_",
+//       "HR_",
+//       "Compliance_",
+//       "Contract_",
+//       "Invoice_",
+//       "Report_",
+//       "Presentation_",
+//       "Reference_",
+//       "General_",
+//     ];
 
-    if (uncategorized.length === 0) {
-      // All categorized → allow send
-      event.completed({ allowEvent: true });
-      return;
-    }
+//     const uncategorized = attachments.filter(
+//       (att) => !KNOWN_PREFIXES.some((p) => att.name.startsWith(p)),
+//     );
 
-    // ── Block send with clear message ─────────────────────────────────────────
-    const fileList = uncategorized.map((a) => `• ${a.name}`).join("\n");
+//     if (uncategorized.length === 0) {
+//       // All categorized → allow send
+//       event.completed({ allowEvent: true });
+//       return;
+//     }
 
-    event.completed({
-      allowEvent: false,
-      errorMessage:
-        `${uncategorized.length} attachment(s) are not categorized:\n\n` +
-        `${fileList}\n\n` +
-        `Please open "View Categories" in the ribbon and label each file before sending.`,
-    });
-  } catch (e) {
-    console.error("[AttachCat] onMessageSend error:", e);
-    // On unexpected error, allow send so user is never permanently stuck
-    event.completed({ allowEvent: true });
-  }
-}
+//     // ── Block send with clear message ─────────────────────────────────────────
+//     const fileList = uncategorized.map((a) => `• ${a.name}`).join("\n");
+
+//     event.completed({
+//       allowEvent: false,
+//       errorMessage:
+//         `${uncategorized.length} attachment(s) are not categorized:\n\n` +
+//         `${fileList}\n\n` +
+//         `Please open "View Categories" in the ribbon and label each file before sending.`,
+//     });
+//   } catch (e) {
+//     console.error("[AttachCat] onMessageSend error:", e);
+//     // On unexpected error, allow send so user is never permanently stuck
+//     event.completed({ allowEvent: true });
+//   }
+// }
 
 // ── CORE ──────────────────────────────────────────────────────────────────────
+
+function onMessageSendHandler(event) {
+  const attachments = Office.context.mailbox.item.attachments || [];
+
+  // No attachments → nothing to check
+  if (attachments.length === 0) {
+    event.completed({ allowEvent: true });
+    return;
+  }
+
+  const uncategorized = attachments.filter(
+    (att) => !KNOWN_PREFIXES.some((p) => att.name.startsWith(p)),
+  );
+
+  if (uncategorized.length === 0) {
+    event.completed({ allowEvent: true });
+    return;
+  }
+
+  // Block send immediately
+  event.completed({
+    allowEvent: false,
+    errorMessage:
+      `⚠️ ${uncategorized.length} attachment(s) not yet categorized:\n\n` +
+      uncategorized.map((a) => `• ${a.name}`).join("\n") +
+      `\n\nPlease open "View Categories" in the ribbon and label each file before sending.`,
+  });
+}
 
 async function checkAndNotify() {
   const item = Office.context.mailbox.item;
