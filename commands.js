@@ -662,6 +662,16 @@ function getMatchedLabels(recipients) {
   return [...matched];
 }
 
+function openPaneOnCompose(event) {
+  try {
+    Office.addin.showAsTaskpane();
+  } catch (err) {
+    console.error("Failed to open pane", err);
+  }
+
+  event.completed();
+}
+
 // ── REGISTER ──────────────────────────────────────────────────────────────────
 if (typeof Office !== "undefined") {
   Office.actions.associate(
@@ -677,4 +687,5 @@ if (typeof Office !== "undefined") {
     onMessageRecipientsChangedHandler,
   );
   Office.actions.associate("onMessageSendHandler", onMessageSendHandler);
+  Office.actions.associate("openPaneOnCompose", openPaneOnCompose);
 }
