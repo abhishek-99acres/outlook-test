@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Attachment Categorizer</title>
+  <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Segoe UI", system-ui, sans-serif;
+      font-size: 13px;
+      color: #1a1a1a;
+      background: #f3f2f1;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #0078d4;
+      color: #fff;
+      padding: 14px 16px 12px;
+    }
+
+    header h1 {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    header p {
+      font-size: 11px;
+      opacity: .85;
+      margin-top: 2px;
+    }
+
+    main {
+      padding: 12px;
+    }
+
+    /* ── Banner ── */
+    #banner {
+      border-radius: 4px;
+      padding: 9px 12px;
+      font-size: 12px;
+      margin-bottom: 12px;
+      line-height: 1.5;
+      display: none;
+    }
+
+    #banner.info {
+      background: #dff0ff;
+      border-left: 3px solid #0078d4;
+      color: #004578;
+    }
+
+    #banner.warn {
+      background: #fff4ce;
+      border-left: 3px solid #f7c948;
+      color: #6b4d00;
+    }
+
+    #banner.success {
+      background: #dff6dd;
+      border-left: 3px solid #107c10;
+      color: #054b05;
+    }
+
+    #banner.error {
+      background: #fde7e9;
+      border-left: 3px solid #a80000;
+      color: #6e0000;
+    }
+
+    /* ── Recipients ── */
+    .section-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: #666;
+      margin-bottom: 6px;
+    }
+
+    #recipientRow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-bottom: 14px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      border-radius: 20px;
+      padding: 3px 10px 3px 8px;
+      font-size: 11px;
+      border: 1px solid #d0d0d0;
+      background: #fff;
+    }
+
+    .chip.trigger {
+      background: #e6f2ff;
+      border-color: #0078d4;
+      color: #004578;
+      font-weight: 600;
+    }
+
+    .chip-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #0078d4;
+    }
+
+    /* ── Attachment cards ── */
+    #attachList {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .att-card {
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      padding: 12px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, .06);
+    }
+
+    .att-card.categorized {
+      border-left: 3px solid #107c10;
+    }
+
+    .att-card.pending {
+      border-left: 3px solid #f7c948;
+    }
+
+    .att-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .att-icon {
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .att-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .att-name {
+      font-weight: 600;
+      font-size: 12px;
+      word-break: break-all;
+      color: #1a1a1a;
+    }
+
+    .att-meta {
+      font-size: 10px;
+      color: #888;
+      margin-top: 2px;
+    }
+
+    .att-status {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 10px;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+
+    .att-status.done {
+      background: #dff6dd;
+      color: #107c10;
+    }
+
+    .att-status.pending {
+      background: #fff4ce;
+      color: #7d5100;
+    }
+
+    /* Category select */
+    .cat-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .cat-select {
+      flex: 1;
+      padding: 6px 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 12px;
+      background: #fafafa;
+      color: #1a1a1a;
+      cursor: pointer;
+    }
+
+    .cat-select:focus {
+      outline: none;
+      border-color: #0078d4;
+    }
+
+    .apply-btn {
+      padding: 6px 14px;
+      background: #0078d4;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .apply-btn:hover {
+      background: #106ebe;
+    }
+
+    .apply-btn:active {
+      background: #005a9e;
+    }
+
+    .apply-btn:disabled {
+      background: #c8c6c4;
+      cursor: not-allowed;
+    }
+
+    .applied-cat {
+      margin-top: 8px;
+      font-size: 11px;
+      color: #107c10;
+      font-weight: 600;
+    }
+
+    /* ── Action bar ── */
+    #actionBar {
+      display: flex;
+      gap: 8px;
+    }
+
+    .bar-btn {
+      flex: 1;
+      padding: 8px;
+      border: none;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    #refreshBtn {
+      background: #f3f2f1;
+      color: #323130;
+      border: 1px solid #ccc;
+    }
+
+    #refreshBtn:hover {
+      background: #edebe9;
+    }
+
+    /* ── Empty / loading ── */
+    #emptyState {
+      text-align: center;
+      padding: 32px 16px;
+      color: #888;
+      display: none;
+    }
+
+    #emptyState svg {
+      opacity: .25;
+      margin-bottom: 10px;
+    }
+
+    #emptyState p {
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid #c8c6c4;
+      border-top-color: #0078d4;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      vertical-align: middle;
+      margin-right: 4px;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <h1>📎 Attachment Categorizer</h1>
+    <p>Select a category for each attachment to prefix its filename</p>
+  </header>
+
+  <main>
+    <div id="banner"></div>
+
+    <div class="section-label">Recipients (To &amp; CC)</div>
+    <div id="recipientRow"><span style="color:#aaa;font-size:12px">Loading…</span></div>
+
+    <div class="section-label">Attachments</div>
+    <div id="attachList"></div>
+
+    <div id="emptyState">
+      <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.5">
+        <path
+          d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48" />
+      </svg>
+      <p id="emptyMsg">No attachments yet.<br />Attach a file to start categorizing.</p>
+    </div>
+
+    <div id="actionBar">
+      <button class="bar-btn" id="refreshBtn">↻ Refresh</button>
+    </div>
+  </main>
+
+  <script>
+    // =============================================================================
+    //  CONFIGURATION — keep in sync with commands.js
+    // =============================================================================
+
+    const TRIGGER_RECIPIENT_MAP = {
+      "abhishek.a3@99acres.com": "Abhishek Anand",
+      "sonia.m@99acres.com": "Sonia M",
+      "coder.abhi02@gmail.com": "Abhishek Kumar",
+      "rkd02122@gmail.com": "Abhishek Kumar",
+      "finance@contoso.com": "Finance",
+      "legal@contoso.com": "Legal",
+      "hr@contoso.com": "HR",
+      "compliance@contoso.com": "Compliance",
+      "audit@contoso.com": "Audit",
+    };
+
+    // Categories the SENDER can assign to each attachment
+    // Format: { value: "PREFIX", label: "Display Name", icon: "emoji" }
+    const CATEGORIES = [
+      { value: "", label: "— Select category —", icon: "" },
+      { value: "Legal", label: "Legal", icon: "⚖️" },
+      { value: "Finance", label: "Finance", icon: "💰" },
+      { value: "HR", label: "HR", icon: "👥" },
+      { value: "Compliance", label: "Compliance", icon: "✅" },
+      { value: "Contract", label: "Contract", icon: "📝" },
+      { value: "Invoice", label: "Invoice", icon: "🧾" },
+      { value: "Report", label: "Report", icon: "📊" },
+      { value: "Presentation", label: "Presentation", icon: "📽️" },
+      { value: "Reference", label: "Reference", icon: "📚" },
+      { value: "General", label: "General", icon: "📎" },
+    ];
+
+    // =============================================================================
+    //  STATE
+    // =============================================================================
+    let matchedLabels = [];
+
+    // =============================================================================
+    //  HELPERS
+    // =============================================================================
+
+    function showBanner (msg, type) {
+      const el = document.getElementById("banner");
+      el.textContent = msg;
+      el.className = type;
+      el.style.display = "block";
+    }
+
+    function hideBanner () {
+      document.getElementById("banner").style.display = "none";
+    }
+
+    function getRecipientsAsync (field) {
+      return new Promise(resolve => {
+        if (!field || typeof field.getAsync !== "function") return resolve([]);
+        field.getAsync({}, r =>
+          resolve(r.status === Office.AsyncResultStatus.Succeeded ? r.value || [] : [])
+        );
+      });
+    }
+
+    function getAttachmentsAsync (item) {
+      return new Promise(resolve => {
+        if (typeof item.getAttachmentsAsync === "function") {
+          item.getAttachmentsAsync({}, r => {
+            resolve(r.status === Office.AsyncResultStatus.Succeeded ? r.value || [] : item.attachments || []);
+          });
+        } else {
+          resolve(item.attachments || []);
+        }
+      });
+    }
+
+    function getAttachmentContentAsync (item, id) {
+      return new Promise((resolve, reject) => {
+        item.getAttachmentContentAsync(id, {}, r => {
+          if (r.status === Office.AsyncResultStatus.Succeeded) resolve(r.value);
+          else reject(r.error);
+        });
+      });
+    }
+
+    function removeAttachmentAsync (item, id) {
+      return new Promise((resolve, reject) => {
+        item.removeAttachmentAsync(id, {}, r => {
+          if (r.status === Office.AsyncResultStatus.Succeeded) resolve();
+          else reject(r.error);
+        });
+      });
+    }
+
+    function addAttachmentAsync (item, base64, newName) {
+      return new Promise((resolve, reject) => {
+        item.addFileAttachmentFromBase64Async(base64, newName, {}, r => {
+          if (r.status === Office.AsyncResultStatus.Succeeded) resolve(r.value);
+          else reject(r.error);
+        });
+      });
+    }
+
+    function getExt (filename) {
+      const parts = (filename || "").split(".");
+      return parts.length < 2 ? "" : parts[parts.length - 1].toLowerCase();
+    }
+
+    function extIcon (filename) {
+      const ext = getExt(filename);
+      const map = {
+        pdf: "📄", doc: "📝", docx: "📝", xls: "📊", xlsx: "📊",
+        csv: "📊", ppt: "📽️", pptx: "📽️", jpg: "🖼️", jpeg: "🖼️",
+        png: "🖼️", gif: "🖼️", zip: "🗜️", rar: "🗜️", txt: "📃",
+      };
+      return map[ext] || "📎";
+    }
+
+    function formatBytes (bytes) {
+      if (!bytes) return "";
+      if (bytes < 1024) return bytes + " B";
+      if (bytes < 1048576) return (bytes / 1024).toFixed(1) + " KB";
+      return (bytes / 1048576).toFixed(1) + " MB";
+    }
+
+    function escHtml (s) {
+      return String(s)
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+
+    // Detect if the filename already has a category prefix (CategoryName_filename)
+    function hasCategoryPrefix (filename) {
+      return CATEGORIES.slice(1).some(c => filename.startsWith(c.value + "_"));
+    }
+
+    function extractPrefix (filename) {
+      const cat = CATEGORIES.slice(1).find(c => filename.startsWith(c.value + "_"));
+      return cat ? cat.value : null;
+    }
+
+    // =============================================================================
+    //  APPLY CATEGORY  — download → remove → re-upload with prefix
+    // =============================================================================
+
+    async function applyCategory (attachmentId, originalName, categoryValue, cardEl) {
+      const item = Office.context.mailbox.item;
+      const btn = cardEl.querySelector(".apply-btn");
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span>Applying…';
+
+      try {
+        // 1. Get content
+        const content = await getAttachmentContentAsync(item, attachmentId);
+
+        // 2. Build new name: "Category_originalname.ext"
+        //    If already prefixed, strip old prefix first
+        let baseName = originalName;
+        const oldPrefix = extractPrefix(originalName);
+        if (oldPrefix) baseName = originalName.slice(oldPrefix.length + 1); // strip "OldCat_"
+
+        const newName = `${categoryValue}_${baseName}`;
+
+        // 3. Remove original
+        await removeAttachmentAsync(item, attachmentId);
+
+        // 4. Re-add with new name
+        await addAttachmentAsync(item, content.content, newName);
+
+        // 5. Update card UI
+        cardEl.classList.remove("pending");
+        cardEl.classList.add("categorized");
+        cardEl.querySelector(".att-name").textContent = newName;
+        cardEl.querySelector(".att-status").textContent = "✓ Done";
+        cardEl.querySelector(".att-status").className = "att-status done";
+
+        const applied = cardEl.querySelector(".applied-cat");
+        if (applied) applied.textContent = `Category: ${categoryValue}`;
+
+        btn.textContent = "✓ Applied";
+        btn.style.background = "#107c10";
+        btn.disabled = false;
+
+        showBanner(`"${newName}" saved successfully.`, "success");
+
+        // Refresh after short delay so user sees confirmation
+        setTimeout(render, 1500);
+
+      } catch (err) {
+        console.error("[AttachCat] applyCategory error:", err);
+        showBanner(`Failed to rename attachment: ${err.message || err}`, "error");
+        btn.disabled = false;
+        btn.textContent = "Apply";
+      }
+    }
+
+    // =============================================================================
+    //  BUILD ATTACHMENT CARD
+    // =============================================================================
+
+    function buildCard (att) {
+      const prefixed = hasCategoryPrefix(att.name);
+      const currentCat = extractPrefix(att.name);
+
+      const card = document.createElement("div");
+      card.className = "att-card " + (prefixed ? "categorized" : "pending");
+      card.dataset.attachId = att.id;
+
+      const catOptions = CATEGORIES.map(c =>
+        `<option value="${escHtml(c.value)}" ${c.value === (currentCat || "") ? "selected" : ""}>
+      ${c.icon ? c.icon + " " : ""}${escHtml(c.label)}
+    </option>`
+      ).join("");
+
+      card.innerHTML = `
+    <div class="att-header">
+      <span class="att-icon">${extIcon(att.name)}</span>
+      <div class="att-info">
+        <div class="att-name">${escHtml(att.name)}</div>
+        <div class="att-meta">${formatBytes(att.size)}</div>
+      </div>
+      <span class="att-status ${prefixed ? "done" : "pending"}">
+        ${prefixed ? "✓ Done" : "⏳ Pending"}
+      </span>
+    </div>
+    <div class="cat-row">
+      <select class="cat-select">${catOptions}</select>
+      <button class="apply-btn">Apply</button>
+    </div>
+    ${prefixed ? `<div class="applied-cat">Category: ${escHtml(currentCat)}</div>` : ""}
+  `;
+
+      // Wire up Apply button
+      card.querySelector(".apply-btn").addEventListener("click", () => {
+        const sel = card.querySelector(".cat-select").value;
+        if (!sel) {
+          showBanner("Please select a category first.", "warn");
+          return;
+        }
+        // Pass current att.id — note: after rename the id changes, render() will refresh
+        applyCategory(att.id, att.name, sel, card);
+      });
+
+      return card;
+    }
+
+    // =============================================================================
+    //  RENDER
+    // =============================================================================
+
+    async function render () {
+      hideBanner();
+      const item = Office.context.mailbox.item;
+
+      // ── Recipients ────────────────────────────────────────────────────────────
+      const [toR, ccR] = await Promise.all([
+        getRecipientsAsync(item.to),
+        getRecipientsAsync(item.cc),
+      ]);
+      const allRecipients = [...toR, ...ccR];
+
+      matchedLabels = [];
+      const recipRow = document.getElementById("recipientRow");
+      recipRow.innerHTML = "";
+
+      allRecipients.forEach(r => {
+        const email = (r.emailAddress || "").toLowerCase().trim();
+        const label = TRIGGER_RECIPIENT_MAP[email];
+        const isTrigger = !!label;
+        if (isTrigger && !matchedLabels.includes(label)) matchedLabels.push(label);
+
+        const chip = document.createElement("div");
+        chip.className = "chip" + (isTrigger ? " trigger" : "");
+        chip.innerHTML = isTrigger
+          ? `<span class="chip-dot"></span>${escHtml(r.displayName || email)}&nbsp;<span style="font-weight:400;opacity:.7">(${label})</span>`
+          : escHtml(r.displayName || email);
+        recipRow.appendChild(chip);
+      });
+
+      if (allRecipients.length === 0) {
+        recipRow.innerHTML = "<span style='color:#aaa;font-size:12px'>No recipients added yet.</span>";
+      }
+
+      // ── Attachments ────────────────────────────────────────────────────────────
+      const attachments = await getAttachmentsAsync(item);
+      const listEl = document.getElementById("attachList");
+      const emptyEl = document.getElementById("emptyState");
+      listEl.innerHTML = "";
+
+      if (matchedLabels.length === 0) {
+        emptyEl.style.display = "block";
+        document.getElementById("emptyMsg").innerHTML =
+          "No trigger recipients found in To/CC.<br/>Add a required recipient to enable categorization.";
+        listEl.style.display = "none";
+        showBanner("Add a trigger recipient (e.g. finance@contoso.com) to enable attachment categorization.", "warn");
+        return;
+      }
+
+      if (attachments.length === 0) {
+        emptyEl.style.display = "block";
+        document.getElementById("emptyMsg").innerHTML =
+          `Sending to <strong>${matchedLabels.join(", ")}</strong>.<br/>Attach files to categorize them.`;
+        listEl.style.display = "none";
+        showBanner(`Trigger recipients detected: ${matchedLabels.join(", ")}. Attach files to begin.`, "info");
+        return;
+      }
+
+      emptyEl.style.display = "none";
+      listEl.style.display = "flex";
+
+      const pending = attachments.filter(a => !hasCategoryPrefix(a.name)).length;
+      const categorized = attachments.length - pending;
+
+      if (pending === 0) {
+        showBanner(`All ${attachments.length} attachment(s) have been categorized. ✓`, "success");
+      } else {
+        showBanner(`${pending} of ${attachments.length} attachment(s) still need a category.`, "warn");
+      }
+
+      attachments.forEach(att => listEl.appendChild(buildCard(att)));
+    }
+
+    // =============================================================================
+    //  BOOT
+    // =============================================================================
+    Office.onReady(() => {
+      render();
+      document.getElementById("refreshBtn").addEventListener("click", render);
+    });
+  </script>
+</body>
+
+</html>
