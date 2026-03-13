@@ -1,32 +1,40 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0" xsi:type="MailApp">
+  xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0"
+  xmlns:mailappor="http://schemas.microsoft.com/office/mailappversionoverrides/1.0" xsi:type="MailApp">
 
   <Id>a1b2c3d4-0000-4f59-883a-f6fff90e5dcc</Id>
-  <Version>1.0.0.5</Version>
+  <Version>1.0.0.0</Version>
   <ProviderName>99Acres</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
   <DisplayName DefaultValue="Attachment Categorizer"/>
-  <Description DefaultValue="Categorizes attachments for specific recipients"/>
+  <Description DefaultValue="Auto-categorizes attachments when specific recipients are detected in To/CC"/>
   <IconUrl DefaultValue="https://officedev.github.io/Office-Add-in-samples/Samples/outlook-encrypt-attachments/assets/icon-64.png"/>
   <HighResolutionIconUrl DefaultValue="https://officedev.github.io/Office-Add-in-samples/Samples/outlook-encrypt-attachments/assets/icon-128.png"/>
-  <SupportUrl DefaultValue="https://99acres.com"/>
+  <SupportUrl DefaultValue="https://yourcompany.com"/>
+
   <AppDomains>
+    <!-- Add your hosted domain here after deployment -->
     <AppDomain>https://abhishek-99acres.github.io</AppDomain>
   </AppDomains>
+
   <Hosts>
     <Host Name="Mailbox"/>
   </Hosts>
+
   <Requirements>
     <Sets>
+      <!-- Mailbox 1.1 minimum for legacy fallback -->
       <Set Name="Mailbox" MinVersion="1.1"/>
     </Sets>
   </Requirements>
+
+  <!-- Legacy schema fallback (overridden below) -->
   <FormSettings>
     <Form xsi:type="ItemRead">
       <DesktopSettings>
-        <SourceLocation DefaultValue="https://abhishek-99acres.github.io/outlook-test/taskpane.html"/>
+        <SourceLocation DefaultValue="https://abhishek-99acres.github.io/outlook-test/commands.html"/>
         <RequestedHeight>250</RequestedHeight>
       </DesktopSettings>
     </Form>
@@ -36,11 +44,13 @@
     <Rule xsi:type="ItemIs" ItemType="Message" FormType="Edit"/>
   </Rule>
   <DisableEntityHighlighting>false</DisableEntityHighlighting>
+  <!-- /Legacy schema -->
 
   <VersionOverrides xmlns="http://schemas.microsoft.com/office/mailappversionoverrides" xsi:type="VersionOverridesV1_0">
     <VersionOverrides xmlns="http://schemas.microsoft.com/office/mailappversionoverrides/1.1" xsi:type="VersionOverridesV1_1">
 
       <Description resid="residAppDesc"/>
+
       <Requirements>
         <bt:Sets DefaultMinVersion="1.12">
           <bt:Set Name="Mailbox"/>
@@ -51,16 +61,19 @@
         <Host xsi:type="MailHost">
 
           <!--
-            SHARED RUNTIME — taskpane.html is the single runtime for BOTH the
-            taskpane UI and all event handlers (commands.js is loaded inside taskpane.html). lifetime="long" keeps it alive for the full compose session.
-            When OnMessageSend fires, the runtime is already loaded → no cold start → no timeout.
+            Runtimes:
+              - WebViewRuntime  → used by Outlook on the Web, Mac, and new Outlook on Windows
+              - JSRuntime       → used by classic Outlook on Windows (separate .js file required)
           -->
           <Runtimes>
-            <Runtime resid="Taskpane.Url" lifetime="long"/>
+            <Runtime resid="WebViewRuntime.Url">
+              <Override type="javascript" resid="JSRuntime.Url"/>
+            </Runtime>
           </Runtimes>
 
           <DesktopFormFactor>
 
+            <!-- ── Taskpane button in message compose ribbon ── -->
             <ExtensionPoint xsi:type="MessageComposeCommandSurface">
               <OfficeTab id="TabDefault">
                 <Group id="msgComposeGroup">
@@ -77,23 +90,34 @@
                       <bt:Image size="80" resid="Icon.80x80"/>
                     </Icon>
                     <Action xsi:type="ShowTaskpane">
-                      <TaskpaneId>AttachCategorizerPane</TaskpaneId>
                       <SourceLocation resid="Taskpane.Url"/>
-                      <SupportsPinning>true</SupportsPinning>
                     </Action>
                   </Control>
                 </Group>
               </OfficeTab>
             </ExtensionPoint>
 
+            <!--
+              ── Event-based activation ──
+              Events fired:
+                OnNewMessageCompose            → seed initial state on compose open
+                OnMessageAttachmentsChanged    → re-evaluate categories when file is added/removed
+                OnMessageRecipientsChanged     → re-evaluate categories when To/CC changes
+            -->
             <ExtensionPoint xsi:type="LaunchEvent">
               <LaunchEvents>
+                <!-- <LaunchEvent Type="OnNewMessageCompose" FunctionName="openPaneOnCompose"/> -->
                 <LaunchEvent Type="OnNewMessageCompose" FunctionName="onNewMessageComposeHandler"/>
                 <LaunchEvent Type="OnMessageAttachmentsChanged" FunctionName="onMessageAttachmentsChangedHandler"/>
                 <LaunchEvent Type="OnMessageRecipientsChanged" FunctionName="onMessageRecipientsChangedHandler"/>
+
+                <!--
+                  OnMessageSend fires when user clicks Send. SendMode="SoftBlock" → shows a dialog with "Send Anyway" option.
+                  Use SendMode="Block"  → hard block with NO "Send Anyway" option.
+                -->
                 <LaunchEvent Type="OnMessageSend" FunctionName="onMessageSendHandler" SendMode="SoftBlock"/>
               </LaunchEvents>
-              <SourceLocation resid="Taskpane.Url"/>
+              <SourceLocation resid="WebViewRuntime.Url"/>
             </ExtensionPoint>
 
           </DesktopFormFactor>
@@ -109,6 +133,8 @@
           <bt:Image id="Icon.128x128" DefaultValue="https://officedev.github.io/Office-Add-in-samples/Samples/outlook-encrypt-attachments/assets/icon-128.png"/>
         </bt:Images>
         <bt:Urls>
+          <bt:Url id="WebViewRuntime.Url" DefaultValue="https://abhishek-99acres.github.io/outlook-test/commands.html"/>
+          <bt:Url id="JSRuntime.Url" DefaultValue="https://abhishek-99acres.github.io/outlook-test/commands.js"/>
           <bt:Url id="Taskpane.Url" DefaultValue="https://abhishek-99acres.github.io/outlook-test/taskpane.html"/>
         </bt:Urls>
         <bt:ShortStrings>
@@ -116,8 +142,8 @@
           <bt:String id="TaskPaneButton.Label" DefaultValue="View Categories"/>
         </bt:ShortStrings>
         <bt:LongStrings>
-          <bt:String id="TaskPaneButton.Tooltip" DefaultValue="View and manage attachment categories"/>
-          <bt:String id="residAppDesc" DefaultValue="Auto-categorizes attachments based on recipients"/>
+          <bt:String id="TaskPaneButton.Tooltip" DefaultValue="View and manage attachment categories for this email"/>
+          <bt:String id="residAppDesc" DefaultValue="Auto-categorizes attachments based on recipients in To/CC"/>
         </bt:LongStrings>
       </Resources>
 
