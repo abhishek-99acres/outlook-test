@@ -375,9 +375,6 @@
       { value: "General", label: "General", icon: "📎" },
     ];
 
-    // Must match KNOWN_PREFIXES in commands.js exactly
-    const KNOWN_PREFIXES = CATEGORIES.slice(1).map(c => c.value + "_");
-
     // =============================================================================
     //  STATE
     // =============================================================================
@@ -389,7 +386,7 @@
 
     function showBanner (msg, type) {
       const el = document.getElementById("banner");
-      el.textContent = msg;   // textContent — never innerHTML, prevents XSS
+      el.textContent = msg;
       el.className = type;
       el.style.display = "block";
     }
@@ -474,8 +471,9 @@
         .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
     }
 
+    // Detect if the filename already has a category prefix (CategoryName_filename)
     function hasCategoryPrefix (filename) {
-      return KNOWN_PREFIXES.some(p => filename.startsWith(p));
+      return CATEGORIES.slice(1).some(c => filename.startsWith(c.value + "_"));
     }
 
     function extractPrefix (filename) {
@@ -490,17 +488,6 @@
     async function applyCategory (attachmentId, originalName, categoryValue, cardEl) {
       const item = Office.context.mailbox.item;
       const btn = cardEl.querySelector(".apply-btn");
-
-      // ── Security: validate categoryValue is a known safe value ──────────────
-      const validCategory = CATEGORIES.slice(1).find(c => c.value === categoryValue);
-      if (!validCategory) {
-        showBanner("Invalid category selected.", "error");
-        return;
-      }
-
-      // ── Security: sanitize filename — strip path separators & control chars ──
-      const safeName = originalName.replace(/[/\\:*?"<>|\x00-\x1f]/g, "_");
-
       btn.disabled = true;
       btn.innerHTML = '<span class="spinner"></span>Applying…';
 
@@ -510,9 +497,9 @@
 
         // 2. Build new name: "Category_originalname.ext"
         //    If already prefixed, strip old prefix first
-        let baseName = safeName;
-        const oldPrefix = extractPrefix(safeName);
-        if (oldPrefix) baseName = safeName.slice(oldPrefix.length + 1);
+        let baseName = originalName;
+        const oldPrefix = extractPrefix(originalName);
+        if (oldPrefix) baseName = originalName.slice(oldPrefix.length + 1); // strip "OldCat_"
 
         const newName = `${categoryValue}_${baseName}`;
 
@@ -654,9 +641,9 @@
       if (attachments.length === 0) {
         emptyEl.style.display = "block";
         document.getElementById("emptyMsg").innerHTML =
-          `Sending to <strong>${matchedLabels.map(escHtml).join(", ")}</strong>.<br/>Attach files to categorize them.`;
+          `Sending to <strong>${matchedLabels.join(", ")}</strong>.<br/>Attach files to categorize them.`;
         listEl.style.display = "none";
-        showBanner(`Trigger recipients detected: ${matchedLabels.map(escHtml).join(", ")}. Attach files to begin.`, "info");
+        showBanner(`Trigger recipients detected: ${matchedLabels.join(", ")}. Attach files to begin.`, "info");
         return;
       }
 
