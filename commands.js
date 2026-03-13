@@ -35,13 +35,13 @@ const NOTIF_KEY_ACTION = "attachCatAction";
 const NOTIF_KEY_NO_RULE = "attachCatNoRule";
 
 // =============================================================================
-//  SEND GUARD
+//  SEND GUARD (Blocks send & opens Taskpane)
 // =============================================================================
 async function onMessageSendHandler(event) {
   try {
     const item = Office.context.mailbox.item;
 
-    // 1. Check if trigger recipients are present (Async)
+    // 1. Check if trigger recipients are present
     const [toR, ccR] = await Promise.all([
       getRecipientsAsync(item.to),
       getRecipientsAsync(item.cc),
@@ -49,13 +49,13 @@ async function onMessageSendHandler(event) {
 
     const matchedLabels = getMatchedLabels([...toR, ...ccR]);
 
-    // If no trigger recipients, allow sending immediately
+    // If no trigger recipients, allow sending
     if (matchedLabels.length === 0) {
       event.completed({ allowEvent: true });
       return;
     }
 
-    // 2. Check attachments (Async)
+    // 2. Check attachments accurately
     const attachments = await getAttachmentsAsync(item);
 
     if (attachments.length === 0) {
@@ -74,20 +74,16 @@ async function onMessageSendHandler(event) {
       return;
     }
 
-    // 4. Block send if uncategorized attachments exist
+    // 4. Block send AND open the taskpane
     event.completed({
       allowEvent: false,
-      errorMessage:
-        "⚠️ " +
-        uncategorized.length +
-        " attachment(s) not categorized:\n\n" +
-        uncategorized.map((a) => "• " + a.name).join("\n") +
-        "\n\nOpen 'View Categories' in the ribbon to label each file before sending.",
+      errorMessage: `⚠️ You have ${uncategorized.length} attachment(s) that need to be categorized before sending.`,
+      cancelLabel: "Categorize Now", // The text on the button Outlook shows
+      commandId: "msgComposeOpenPaneButton", // Matches the Control ID in manifest.xml to open the UI
     });
   } catch (error) {
     console.error("[AttachCat] Error during onMessageSend:", error);
-    // FAIL-SAFE: ALWAYS allow event if an unexpected error occurs
-    // so the user is never permanently stuck unable to send emails.
+    // FAIL-SAFE: Always allow send if the script crashes so the user is not stuck
     event.completed({ allowEvent: true });
   }
 }
@@ -148,7 +144,6 @@ async function checkAndNotify() {
     return;
   }
 
-  // Use the async helper instead of item.attachments directly
   const attachments = await getAttachmentsAsync(item);
   const uncategorized = attachments.filter(
     (a) => !KNOWN_PREFIXES.some((p) => a.name.startsWith(p)),
@@ -198,7 +193,8 @@ function getAttachmentsAsync(item) {
         );
       });
     } else {
-      resolve([]);
+      // Fallback for older versions
+      resolve(item.attachments || []);
     }
   });
 }
