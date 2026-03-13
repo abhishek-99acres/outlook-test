@@ -11,9 +11,16 @@
 ============================================================================= */
 
 const KNOWN_PREFIXES = [
-  "Legal_", "Finance_", "HR_", "Compliance_",
-  "Contract_", "Invoice_", "Report_",
-  "Presentation_", "Reference_", "General_",
+  "Legal_",
+  "Finance_",
+  "HR_",
+  "Compliance_",
+  "Contract_",
+  "Invoice_",
+  "Report_",
+  "Presentation_",
+  "Reference_",
+  "General_",
 ];
 
 // ---------------------------------------------------------------------------
@@ -28,9 +35,11 @@ function onMessageSendHandler(event) {
       return;
     }
 
-    const bad = attachments.filter(
-      function(a) { return !KNOWN_PREFIXES.some(function(p) { return a.name.startsWith(p); }); }
-    );
+    const bad = attachments.filter(function (a) {
+      return !KNOWN_PREFIXES.some(function (p) {
+        return a.name.startsWith(p);
+      });
+    });
 
     if (bad.length === 0) {
       event.completed({ allowEvent: true });
@@ -40,11 +49,15 @@ function onMessageSendHandler(event) {
     event.completed({
       allowEvent: false,
       errorMessage:
-        bad.length + " attachment(s) not categorized:\n" +
-        bad.map(function(a) { return "  \u2022 " + a.name; }).join("\n") +
+        bad.length +
+        " attachment(s) not categorized:\n" +
+        bad
+          .map(function (a) {
+            return "  \u2022 " + a.name;
+          })
+          .join("\n") +
         "\n\nOpen 'View Categories' in the ribbon to label them.",
     });
-
   } catch (e) {
     console.error("[AttachCat] send error:", e);
     event.completed({ allowEvent: true });
@@ -55,7 +68,9 @@ function onMessageSendHandler(event) {
 // OnNewMessageCompose
 // ---------------------------------------------------------------------------
 function onNewMessageComposeHandler(event) {
-  try { showNotification(); } catch(e) {}
+  try {
+    showNotification();
+  } catch (e) {}
   event.completed();
 }
 
@@ -66,13 +81,15 @@ function onMessageAttachmentsChangedHandler(event) {
   try {
     showNotification();
     var attachments = Office.context.mailbox.item.attachments || [];
-    var hasUncategorized = attachments.some(
-      function(a) { return !KNOWN_PREFIXES.some(function(p) { return a.name.startsWith(p); }); }
-    );
+    var hasUncategorized = attachments.some(function (a) {
+      return !KNOWN_PREFIXES.some(function (p) {
+        return a.name.startsWith(p);
+      });
+    });
     if (hasUncategorized && Office.addin && Office.addin.showAsTaskpane) {
       Office.addin.showAsTaskpane();
     }
-  } catch(e) {
+  } catch (e) {
     console.error("[AttachCat] attachment change error:", e);
   }
   event.completed();
@@ -82,7 +99,9 @@ function onMessageAttachmentsChangedHandler(event) {
 // OnMessageRecipientsChanged
 // ---------------------------------------------------------------------------
 function onMessageRecipientsChangedHandler(event) {
-  try { showNotification(); } catch(e) {}
+  try {
+    showNotification();
+  } catch (e) {}
   event.completed();
 }
 
@@ -91,14 +110,21 @@ function onMessageRecipientsChangedHandler(event) {
 // ---------------------------------------------------------------------------
 function showNotification() {
   var attachments = Office.context.mailbox.item.attachments || [];
-  var bad = attachments.filter(
-    function(a) { return !KNOWN_PREFIXES.some(function(p) { return a.name.startsWith(p); }); }
-  );
-  var msg = attachments.length === 0
-    ? "Attach a file — the categorizer will open automatically."
-    : bad.length > 0
-      ? "\u26a0\ufe0f " + bad.length + " attachment(s) need a category label before sending."
-      : "\u2713 All " + attachments.length + " attachment(s) categorized. Ready to send.";
+  var bad = attachments.filter(function (a) {
+    return !KNOWN_PREFIXES.some(function (p) {
+      return a.name.startsWith(p);
+    });
+  });
+  var msg =
+    attachments.length === 0
+      ? "Attach a file — the categorizer will open automatically."
+      : bad.length > 0
+        ? "\u26a0\ufe0f " +
+          bad.length +
+          " attachment(s) need a category label before sending."
+        : "\u2713 All " +
+          attachments.length +
+          " attachment(s) categorized. Ready to send.";
 
   Office.context.mailbox.item.notificationMessages.replaceAsync("attachCat", {
     type: Office.MailboxEnums.ItemNotificationMessageType.InformationalMessage,
@@ -112,7 +138,16 @@ function showNotification() {
 // REGISTER AT TOP LEVEL — this is mandatory for event-based activation.
 // Do NOT wrap in Office.onReady() — that delays registration past the timeout.
 // ---------------------------------------------------------------------------
-Office.actions.associate("onNewMessageComposeHandler",         onNewMessageComposeHandler);
-Office.actions.associate("onMessageAttachmentsChangedHandler", onMessageAttachmentsChangedHandler);
-Office.actions.associate("onMessageRecipientsChangedHandler",  onMessageRecipientsChangedHandler);
-Office.actions.associate("onMessageSendHandler",               onMessageSendHandler);
+Office.actions.associate(
+  "onNewMessageComposeHandler",
+  onNewMessageComposeHandler,
+);
+Office.actions.associate(
+  "onMessageAttachmentsChangedHandler",
+  onMessageAttachmentsChangedHandler,
+);
+Office.actions.associate(
+  "onMessageRecipientsChangedHandler",
+  onMessageRecipientsChangedHandler,
+);
+Office.actions.associate("onMessageSendHandler", onMessageSendHandler);
