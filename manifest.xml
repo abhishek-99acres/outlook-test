@@ -10,8 +10,8 @@
   <DefaultLocale>en-US</DefaultLocale>
   <DisplayName DefaultValue="Attachment Categorizer"/>
   <Description DefaultValue="Auto-categorizes attachments when specific recipients are detected in To/CC"/>
-  <IconUrl DefaultValue="https://officedev.github.io/Office-Add-in-samples/Samples/outlook-encrypt-attachments/assets/icon-64.png"/>
-  <HighResolutionIconUrl DefaultValue="https://officedev.github.io/Office-Add-in-samples/Samples/outlook-encrypt-attachments/assets/icon-128.png"/>
+  <IconUrl DefaultValue="https://abhishek-99acres.github.io/outlook-test/assets/icon-64.png"/>
+  <HighResolutionIconUrl DefaultValue="https://abhishek-99acres.github.io/outlook-test/assets/icon-128.png"/>
   <SupportUrl DefaultValue="https://yourcompany.com"/>
 
   <AppDomains>
@@ -126,11 +126,11 @@
 
       <Resources>
         <bt:Images>
-          <bt:Image id="Icon.16x16" DefaultValue="https://officedev.github.io/Office-Add-in-samples/Samples/outlook-encrypt-attachments/assets/icon-16.png"/>
-          <bt:Image id="Icon.32x32" DefaultValue="https://officedev.github.io/Office-Add-in-samples/Samples/outlook-encrypt-attachments/assets/icon-32.png"/>
-          <bt:Image id="Icon.64x64" DefaultValue="https://officedev.github.io/Office-Add-in-samples/Samples/outlook-encrypt-attachments/assets/icon-64.png"/>
-          <bt:Image id="Icon.80x80" DefaultValue="https://officedev.github.io/Office-Add-in-samples/Samples/outlook-encrypt-attachments/assets/icon-80.png"/>
-          <bt:Image id="Icon.128x128" DefaultValue="https://officedev.github.io/Office-Add-in-samples/Samples/outlook-encrypt-attachments/assets/icon-128.png"/>
+          <bt:Image id="Icon.16x16" DefaultValue="https://abhishek-99acres.github.io/outlook-test/assets/icon-16.png"/>
+          <bt:Image id="Icon.32x32" DefaultValue="https://abhishek-99acres.github.io/outlook-test/assets/icon-32.png"/>
+          <bt:Image id="Icon.64x64" DefaultValue="https://abhishek-99acres.github.io/outlook-test/assets/icon-64.png"/>
+          <bt:Image id="Icon.80x80" DefaultValue="https://abhishek-99acres.github.io/outlook-test/assets/icon-80.png"/>
+          <bt:Image id="Icon.128x128" DefaultValue="https://abhishek-99acres.github.io/outlook-test/assets/icon-128.png"/>
         </bt:Images>
         <bt:Urls>
           <bt:Url id="WebViewRuntime.Url" DefaultValue="https://abhishek-99acres.github.io/outlook-test/commands.html"/>
