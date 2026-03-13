@@ -106,10 +106,10 @@
             -->
             <ExtensionPoint xsi:type="LaunchEvent">
               <LaunchEvents>
+                <!-- <LaunchEvent Type="OnNewMessageCompose" FunctionName="openPaneOnCompose"/> -->
                 <LaunchEvent Type="OnNewMessageCompose" FunctionName="onNewMessageComposeHandler"/>
                 <LaunchEvent Type="OnMessageAttachmentsChanged" FunctionName="onMessageAttachmentsChangedHandler"/>
                 <LaunchEvent Type="OnMessageRecipientsChanged" FunctionName="onMessageRecipientsChangedHandler"/>
-                <LaunchEvent Type="OnNewMessageCompose" FunctionName="openPaneOnCompose"/>
 
                 <!--
                   OnMessageSend fires when user clicks Send. SendMode="SoftBlock" → shows a dialog with "Send Anyway" option.
