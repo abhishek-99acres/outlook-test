@@ -283,11 +283,35 @@ function getRecipientsAsync(recipientField) {
  * @param {Office.EmailAddressDetails[]} allRecipients
  * @returns {string[]}  deduplicated label array, e.g. ["Finance", "Legal"]
  */
+
+// function getMatchedLabels(allRecipients) {
+//   const matched = new Set();
+//   for (const recipient of allRecipients) {
+//     const email = (recipient.emailAddress || "").toLowerCase().trim();
+//     // const email = (recipient.emailAddress || "").trim();
+//     if (TRIGGER_RECIPIENT_MAP[email]) {
+//       matched.add(TRIGGER_RECIPIENT_MAP[email]);
+//     }
+//   }
+//   return [...matched];
+// }
+
 function getMatchedLabels(allRecipients) {
   const matched = new Set();
   for (const recipient of allRecipients) {
     const email = (recipient.emailAddress || "").toLowerCase().trim();
-    // const email = (recipient.emailAddress || "").trim();
+
+    // ← ADD THIS: shows exact value in browser console
+    console.log(
+      "[AttachCat] RAW recipient:",
+      JSON.stringify({
+        displayName: recipient.displayName,
+        emailAddress: recipient.emailAddress,
+        recipientType: recipient.recipientType,
+        lowercased: email,
+      }),
+    );
+
     if (TRIGGER_RECIPIENT_MAP[email]) {
       matched.add(TRIGGER_RECIPIENT_MAP[email]);
     }
