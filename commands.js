@@ -42,6 +42,9 @@
 
 const TRIGGER_RECIPIENT_MAP = {
   "abhishek.a3@99acres.com": "Abhishek Anand", // ← lowercase 'a' in 99acres
+  "abhishek.a3@99Acres.com": "Abhishek Anand",
+  "sonia.m@99acres.com": "Sonia M",
+  "sonia.m@99Acres.com": "Sonia M",
   "finance@contoso.com": "Finance",
   "legal@contoso.com": "Legal",
   "hr@contoso.com": "HR",
@@ -150,7 +153,7 @@ async function onMessageAttachmentsChangedHandler(event) {
  */
 async function onMessageRecipientsChangedHandler(event) {
   try {
-    console.log("[AttachCat] Recipients changed – re-evaluating categories.");
+    console.log("[AttachCat] Recipients changed - re-evaluating categories.");
     await evaluateAndCategorize(event, "recipients-change");
   } catch (err) {
     console.error("[AttachCat] onMessageRecipientsChanged error:", err);
@@ -285,7 +288,8 @@ function getRecipientsAsync(recipientField) {
 function getMatchedLabels(allRecipients) {
   const matched = new Set();
   for (const recipient of allRecipients) {
-    const email = (recipient.emailAddress || "").toLowerCase().trim();
+    // const email = (recipient.emailAddress || "").toLowerCase().trim();
+    const email = (recipient.emailAddress || "").trim();
     if (TRIGGER_RECIPIENT_MAP[email]) {
       matched.add(TRIGGER_RECIPIENT_MAP[email]);
     }
