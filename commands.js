@@ -787,6 +787,81 @@ const NOTIF_KEY_NO_TRIGGER = "noTriggerRecipient";
 // ❷  ENTRY POINTS  (registered in manifest.xml)
 // ---------------------------------------------------------------------------
 
+// =============================================================================
+//  SEND GUARD — synchronous, no await, no API calls
+//  Office gives OnMessageSend only 5 seconds — this runs in <1ms
+// =============================================================================
+
+// function onMessageSendHandler(event) {
+//   const attachments = Office.context.mailbox.item.attachments || [];
+
+//   if (attachments.length === 0) {
+//     event.completed({ allowEvent: true });
+//     return;
+//   }
+
+//   const uncategorized = attachments.filter(
+//     (att) => !KNOWN_PREFIXES.some((p) => att.name.startsWith(p)),
+//   );
+
+//   if (uncategorized.length === 0) {
+//     event.completed({ allowEvent: true });
+//     return;
+//   }
+
+//   event.completed({
+//     allowEvent: false,
+//     errorMessage:
+//       "⚠️ " +
+//       uncategorized.length +
+//       " attachment(s) not categorized:\n\n" +
+//       uncategorized.map((a) => "• " + a.name).join("\n") +
+//       "\n\nOpen 'View Categories' in the ribbon to label each file before sending.",
+//   });
+// }
+
+// ── ❺ ON SEND HANDLER (Smart Alerts) ──
+
+async function onMessageSendHandler(event) {
+  try {
+    const item = Office.context.mailbox.item;
+
+    // 1. Check if the user has satisfied requirements (e.g., categories are applied)
+    // We check the custom property you saved in evaluateAndCategorize
+    const categoriesApplied = await checkCategorizationStatus(item);
+
+    if (!categoriesApplied) {
+      // 2. This triggers the browser's native "Smart Alert" popup
+      event.completed({
+        allowEvent: false,
+        errorMessage:
+          "Wait! You haven't categorized your attachments for these recipients.",
+        // errorMessageMarkdown allows you to link the user back to your taskpane
+        errorMessageMarkdown:
+          "Please open the **Attachment Categorizer** plugin to confirm labels before sending.",
+      });
+    } else {
+      // 3. Requirements met, allow the email to go out
+      event.completed({ allowEvent: true });
+    }
+  } catch (err) {
+    console.error("[AttachCat] OnSend Error:", err);
+    event.completed({ allowEvent: true }); // Default to allow on error
+  }
+}
+
+// Helper to check if your logic has already run/satisfied requirements
+function checkCategorizationStatus(item) {
+  return new Promise((resolve) => {
+    item.loadCustomPropertiesAsync((result) => {
+      const props = result.value;
+      // Replace 'categorizationDetail' with whatever key you used in saveCategorizationSummaryAsync
+      const status = props.get("categorizationDetail");
+      resolve(!!status);
+    });
+  });
+}
+
 /**
  * OnNewMessageCompose – initialise; no attachments yet, but we can check
  * pre-filled recipients (e.g. when replying or using a template).
@@ -1191,4 +1266,5 @@ if (typeof Office !== "undefined") {
     "onMessageRecipientsChangedHandler",
     onMessageRecipientsChangedHandler,
   );
+  Office.actions.associate("onMessageSendHandler", onMessageSendHandler);
 }
