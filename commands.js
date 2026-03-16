@@ -723,6 +723,8 @@
 const TRIGGER_RECIPIENT_MAP = {
   "abhishek.a3@99acres.com": "Abhishek Anand", // 99Acres → 99acres after toLowerCase
   "sonia.m@99acres.com": "Sonia M",
+  "coder.abhi02@gmail.com": "Abhishek Kumar",
+  "rkd02122@gmail.com": "Abhishek Kumar",
   "finance@contoso.com": "Finance",
   "legal@contoso.com": "Legal",
   "hr@contoso.com": "HR",
