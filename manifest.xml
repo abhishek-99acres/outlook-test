@@ -128,7 +128,7 @@
         <bt:Urls>
           <bt:Url id="WebViewRuntime.Url" DefaultValue="https://abhishek-99acres.github.io/outlook-test/commands.html"/>
           <bt:Url id="JSRuntime.Url" DefaultValue="https://abhishek-99acres.github.io/outlook-test/commands.js"/>
-          <bt:Url id="Taskpane.Url" DefaultValue="https://abhishek-99acres.github.io/src/taskpane/taskpane.html"/>
+          <bt:Url id="Taskpane.Url" DefaultValue="https://abhishek-99acres.github.io/outlook-test/taskpane.html"/>
         </bt:Urls>
         <bt:ShortStrings>
           <bt:String id="GroupLabel" DefaultValue="Attachment Categorizer"/>

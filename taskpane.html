@@ -7,7 +7,6 @@
   <title>Attachment Categorizer</title>
   <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
   <style>
-    /* ── Reset & base ── */
     *,
     *::before,
     *::after {
@@ -24,7 +23,6 @@
       min-height: 100vh;
     }
 
-    /* ── Header ── */
     header {
       background: #0078d4;
       color: #fff;
@@ -43,12 +41,10 @@
       margin-top: 2px;
     }
 
-    /* ── Container ── */
     main {
       padding: 14px 14px 20px;
     }
 
-    /* ── Status banner ── */
     #statusBanner {
       border-radius: 4px;
       padding: 10px 12px;
@@ -76,7 +72,6 @@
       color: #054b05;
     }
 
-    /* ── Recipients section ── */
     .section-title {
       font-size: 11px;
       font-weight: 700;
@@ -119,7 +114,6 @@
       flex-shrink: 0;
     }
 
-    /* ── Attachment table ── */
     #attachTable {
       width: 100%;
       border-collapse: collapse;
@@ -178,7 +172,6 @@
       white-space: nowrap;
     }
 
-    /* Category colours (match RECIPIENT_CATEGORY_COLORS in commands.js) */
     .cat-Finance {
       background: #fde7e9;
       color: #a80000;
@@ -209,7 +202,6 @@
       color: #004578;
     }
 
-    /* ── Empty state ── */
     #emptyState {
       text-align: center;
       padding: 36px 20px;
@@ -227,7 +219,6 @@
       line-height: 1.5;
     }
 
-    /* ── Refresh button ── */
     #refreshBtn {
       display: block;
       width: 100%;
@@ -267,10 +258,8 @@
 
   <main>
     <div id="statusBanner"></div>
-
     <div class="section-title">Recipients (To &amp; CC)</div>
     <div id="recipientChips"><span class="loading">Loading…</span></div>
-
     <div class="section-title">Attachments &amp; Categories</div>
 
     <table id="attachTable" style="display:none">
@@ -285,7 +274,6 @@
     </table>
 
     <div id="emptyState">
-      <!-- paper-clip SVG icon -->
       <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.5">
         <path
           d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48" />
@@ -297,10 +285,8 @@
   </main>
 
   <script>
-    // ---------------------------------------------------------------------------
-    //  Taskpane logic — mirrors the config in commands.js
-    // ---------------------------------------------------------------------------
-
+    // ── CONFIGURATION — keep in sync with commands.js ───────────────────────────
+    // FIX 1: Correct email addresses discovered from console logs
     const TRIGGER_RECIPIENT_MAP = {
       "abhishek.a3@99acres.com": "Abhishek Anand",
       "sonia.m@99acres.com": "Sonia M",
@@ -323,7 +309,6 @@
       _default: "General Attachment",
     };
 
-    // Colours for category badges (must match CSS class names above)
     function getCatClass (label) {
       if (!label) return "cat-default";
       for (const key of ["Finance", "Legal", "HR", "Compliance", "Audit"]) {
@@ -359,11 +344,47 @@
       return `${label} | ${docType}`;
     }
 
-    // ── Main render ──────────────────────────────────────────────────────────────
+    // ── Helpers ──────────────────────────────────────────────────────────────────
+    function getRecipientsAsync (field) {
+      return new Promise(resolve => {
+        if (!field || typeof field.getAsync !== "function") return resolve([]);
+        field.getAsync({}, result => {
+          resolve(result.status === Office.AsyncResultStatus.Succeeded ? (result.value || []) : []);
+        });
+      });
+    }
+
+    // FIX 2: Always use getAttachmentsAsync — item.attachments is empty in taskpane context
+    function getAttachmentsAsync (item) {
+      return new Promise(resolve => {
+        if (typeof item.getAttachmentsAsync === "function") {
+          item.getAttachmentsAsync({}, result => {
+            if (result.status === Office.AsyncResultStatus.Succeeded) {
+              console.log("[AttachCat] getAttachmentsAsync returned:", result.value);
+              resolve(result.value || []);
+            } else {
+              console.warn("[AttachCat] getAttachmentsAsync failed:", result.error);
+              resolve(item.attachments || []);  // fallback
+            }
+          });
+        } else {
+          console.warn("[AttachCat] getAttachmentsAsync not available, using sync fallback");
+          resolve(item.attachments || []);
+        }
+      });
+    }
+
+    function escapeHtml (str) {
+      return String(str)
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+
+    // ── Main render ───────────────────────────────────────────────────────────────
     async function render () {
       const item = Office.context.mailbox.item;
 
-      // ── Recipients ────────────────────────────────────────────────────────────
+      // ── Recipients ──────────────────────────────────────────────────────────────
       const [toR, ccR] = await Promise.all([
         getRecipientsAsync(item.to),
         getRecipientsAsync(item.cc),
@@ -378,7 +399,7 @@
         chipsContainer.innerHTML = "<span style='color:#888;font-size:12px'>No recipients yet.</span>";
       } else {
         allRecipients.forEach(r => {
-          const email = (r.emailAddress || "").toLowerCase();
+          const email = (r.emailAddress || "").toLowerCase().trim(); // always lowercase
           const label = TRIGGER_RECIPIENT_MAP[email];
           const isTrigger = !!label;
           if (isTrigger && !matchedLabels.includes(label)) matchedLabels.push(label);
@@ -386,14 +407,15 @@
           const chip = document.createElement("div");
           chip.className = "chip" + (isTrigger ? " trigger" : "");
           chip.innerHTML = isTrigger
-            ? `<span class="chip-dot"></span>${r.displayName || email} <span style="font-weight:400;opacity:.8">(${label})</span>`
-            : (r.displayName || email);
+            ? `<span class="chip-dot"></span>${escapeHtml(r.displayName || email)} <span style="font-weight:400;opacity:.8">(${label})</span>`
+            : escapeHtml(r.displayName || email);
           chipsContainer.appendChild(chip);
         });
       }
 
-      // ── Attachments ────────────────────────────────────────────────────────────
-      const attachments = item.attachments || [];
+      // ── Attachments (FIX 2: async, not synchronous item.attachments) ────────────
+      const attachments = await getAttachmentsAsync(item);
+
       const tbody = document.getElementById("attachBody");
       const table = document.getElementById("attachTable");
       const empty = document.getElementById("emptyState");
@@ -402,6 +424,7 @@
       if (attachments.length === 0) {
         table.style.display = "none";
         empty.style.display = "block";
+        empty.querySelector("p").textContent = "No attachments yet.\nAdd a file to see categories.";
         if (matchedLabels.length > 0) {
           showBanner(`Trigger recipients detected: ${matchedLabels.join(", ")}. Attach files to auto-categorize.`, "info");
         } else {
@@ -434,23 +457,7 @@
       });
     }
 
-    // ── Helpers ──────────────────────────────────────────────────────────────────
-    function getRecipientsAsync (field) {
-      return new Promise(resolve => {
-        if (!field || typeof field.getAsync !== "function") return resolve([]);
-        field.getAsync({}, result => {
-          resolve(result.status === Office.AsyncResultStatus.Succeeded ? (result.value || []) : []);
-        });
-      });
-    }
-
-    function escapeHtml (str) {
-      return String(str)
-        .replace(/&/g, "&amp;").replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-    }
-
-    // ── Boot ─────────────────────────────────────────────────────────────────────
+    // ── Boot ──────────────────────────────────────────────────────────────────────
     Office.onReady(() => {
       render();
       document.getElementById("refreshBtn").addEventListener("click", render);
